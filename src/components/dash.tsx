@@ -1,9 +1,9 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "./ui/button"; 
-import { Sun, Train, CalendarDays, ListTodo, Maximize2, Minimize2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Button } from "./ui/button";
+import { Sun, Train, CalendarDays, ListTodo, Maximize2 } from "lucide-react";
+import { useState } from "react";
 
 export default function HomeDashboard() {
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -25,7 +25,7 @@ export default function HomeDashboard() {
   }
 
   return (
-    <div className="w-screen min-w-full bg-muted p-0 auto-rows-fr grid grid-cols-4 gap-4">
+    <div className="fixed top-0 left-0 w-[1480px] h-[320px] bg-muted p-4 grid grid-cols-4 gap-4 overflow-hidden" style={{ margin: 0 }}>
 
       {/* Fullscreen */}
       <Button
@@ -35,7 +35,7 @@ export default function HomeDashboard() {
         className="absolute top-4 right-4 z-10"
         aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
       >
-        {isFullscreen ? <Minimize2 className="h-1 w-1" /> : <Maximize2 className="h-5 w-5" />}
+        {isFullscreen ? undefined : <Maximize2 className="h-5 w-5" />}
       </Button>
 
       {/* Calendar Section */}
