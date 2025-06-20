@@ -1,12 +1,43 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar } from "@/components/ui/calendar";
-import { Sun, Train, CalendarDays, ListTodo } from "lucide-react";
+import { Button } from "./ui/button"; 
+import { Sun, Train, CalendarDays, ListTodo, Maximize2, Minimize2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function HomeDashboard() {
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
+  const toggleFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+        setIsFullscreen(true);
+      } else {
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+          setIsFullscreen(false)
+        }
+      }
+    } catch (err) {
+      console.error("Error toggling fullscreen:", err)
+    }
+  }
+
   return (
     <div className="w-screen min-w-full bg-muted p-0 auto-rows-fr grid grid-cols-4 gap-4">
+
+      {/* Fullscreen */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={toggleFullscreen}
+        className="absolute top-4 right-4 z-10"
+        aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+      >
+        {isFullscreen ? <Minimize2 className="h-1 w-1" /> : <Maximize2 className="h-5 w-5" />}
+      </Button>
+
       {/* Calendar Section */}
       <Card className="flex flex-col h-full">
         <CardHeader>
