@@ -2,11 +2,50 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "./ui/button";
-import { Sun, Train, CalendarDays, ListTodo, Maximize2 } from "lucide-react";
-import { useState } from "react";
+import {
+  Sun,
+  RailSymbol,
+  OctagonAlert,
+  OctagonX,
+  CalendarDays,
+  ListTodo,
+  Maximize2,
+} from "lucide-react";
+import { useState, Fragment } from "react";
+
+const trains = [
+  {
+    time: "08:03",
+    from: "London Victoria",
+    to: "Clapham Junction",
+    expectedTime: "08:03",
+    status: "On Time",
+  },
+  {
+    time: "08:17",
+    from: "Clapham Junction",
+    to: "Brighton",
+    expectedTime: "08:17",
+    status: "On Time",
+  },
+  {
+    time: "08:35",
+    from: "Brighton",
+    to: "London Victoria",
+    expectedTime: "08:50",
+    status: "Delayed",
+  },
+  {
+    time: "08:50",
+    from: "London Victoria",
+    to: "Clapham Junction",
+    expectedTime: "08:50",
+    status: "Cancelled",
+  },
+];
 
 export default function HomeDashboard() {
-  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const toggleFullscreen = async () => {
     try {
@@ -16,17 +55,19 @@ export default function HomeDashboard() {
       } else {
         if (document.exitFullscreen) {
           await document.exitFullscreen();
-          setIsFullscreen(false)
+          setIsFullscreen(false);
         }
       }
     } catch (err) {
-      console.error("Error toggling fullscreen:", err)
+      console.error("Error toggling fullscreen:", err);
     }
-  }
+  };
 
   return (
-    <div className="fixed top-0 left-0 w-[1480px] h-[320px] bg-muted p-4 grid grid-cols-4 gap-4 overflow-hidden" style={{ margin: 0 }}>
-
+    <div
+      className="fixed top-0 left-0 w-[1480px] h-[320px] bg-muted p-4 grid grid-cols-4 gap-4 overflow-hidden"
+      style={{ margin: 0 }}
+    >
       {/* Fullscreen */}
       <Button
         variant="ghost"
@@ -45,31 +86,43 @@ export default function HomeDashboard() {
             <CalendarDays className="w-5 h-5" /> Calendar
           </CardTitle>
         </CardHeader>
-        <CardContent>
-        </CardContent>
+        <CardContent></CardContent>
       </Card>
 
       {/* Trains Section */}
       <Card className="flex flex-col h-full">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Train className="w-5 h-5" /> Trains
+            <RailSymbol className="w-5 h-5 text-red-600" /> Trains
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          <div className="flex justify-between">
-            <span>08:03</span>
-            <span>London Victoria</span>
-          </div>
-          <Separator />
-          <div className="flex justify-between">
-            <span>08:17</span>
-            <span>Clapham Junction</span>
-          </div>
-          <Separator />
-          <div className="flex justify-between">
-            <span>08:35</span>
-            <span>Brighton</span>
+          <div className="grid grid-cols-3 grid-cols-[auto_auto_1fr] gap-4 items-center">
+          {trains.map((train, index) => (
+            <Fragment key={index}>
+                <div className="flex flex-col leading-tight">
+                  <span>{train.expectedTime}</span>
+                  <span className="text-xs text-gray-400 align-bottom">
+                    {train.expectedTime !== train.time ? train.time : null}
+                  </span>
+                </div>
+                <span className="text-left">{train.to}</span>
+                <span
+                  className={`text-sm ${
+                    train.status === "Delayed"
+                      ? "text-orange-500"
+                      : train.status === "Cancelled"
+                      ? "text-red-500"
+                      : ""
+                  }`}
+                >
+                  {train.status === "Delayed" ? (
+                    <OctagonAlert className="inline" />
+                  ) : null}
+                  {train.status === "Cancelled" ? <OctagonX /> : null}
+                </span>
+            </Fragment>
+          ))}
           </div>
         </CardContent>
       </Card>
@@ -101,15 +154,21 @@ export default function HomeDashboard() {
         <CardContent className="space-y-2">
           <div className="flex items-center space-x-2">
             <Checkbox id="task1" />
-            <label htmlFor="task1" className="text-sm">Take out the trash</label>
+            <label htmlFor="task1" className="text-sm">
+              Take out the trash
+            </label>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox id="task2" defaultChecked />
-            <label htmlFor="task2" className="text-sm">Check train status</label>
+            <label htmlFor="task2" className="text-sm">
+              Check train status
+            </label>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox id="task3" />
-            <label htmlFor="task3" className="text-sm">Buy groceries</label>
+            <label htmlFor="task3" className="text-sm">
+              Buy groceries
+            </label>
           </div>
         </CardContent>
       </Card>
