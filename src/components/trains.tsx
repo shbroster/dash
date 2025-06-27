@@ -42,9 +42,9 @@ export default function TrainsCard({ trains, timeNow }: TrainsCardProps) {
   const minutesToLeave = minuteDiff(sortedTrains[0].expectedTime, timeNow);
   const leaveColour =
     minutesToLeave >= 0
-      ? "text-gray-600"
+      ? "text-gray-500"
       : minutesToLeave >= -4
-      ? "text-orange-400"
+      ? "text-orange-500"
       : "text-red-500";
 
   return (
@@ -57,7 +57,7 @@ export default function TrainsCard({ trains, timeNow }: TrainsCardProps) {
           </span>
         </CardTitle>
         <CardAction>
-          <span className={`text-sm ${leaveColour}`}>
+          <span className="text-sm text-gray-600">
             {minutesToLeave} mins{" "}
             <Footprints className={`inline ${leaveColour}`} />
           </span>
@@ -67,9 +67,9 @@ export default function TrainsCard({ trains, timeNow }: TrainsCardProps) {
         <div className="grid grid-cols-3 grid-cols-[auto_auto_1fr] gap-y-1 gap-x-4 items-center">
           {sortedTrains.map((train, index) => (
             <Fragment key={index}>
-              <div className="flex flex-col leading-tight">
+              <div className="flex flex-col leading-none">
                 <span>{getTime(train.expectedTime)}</span>
-                <span className="text-xs text-gray-400 align-bottom">
+                <span className="text-xs text-gray-500 align-bottom">
                   {train.expectedTime.getTime() !== train.time.getTime()
                     ? getTime(train.time)
                     : null}
@@ -77,7 +77,7 @@ export default function TrainsCard({ trains, timeNow }: TrainsCardProps) {
               </div>
               <span
                 className={`text-left ${
-                  train.status === "Cancelled" && "line-through text-gray-400"
+                  train.status === "Cancelled" && "line-through text-gray-500"
                 }`}
               >
                 {train.to}
