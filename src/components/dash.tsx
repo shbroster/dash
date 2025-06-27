@@ -1,46 +1,46 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "./ui/button";
-import {
-  Sun,
-  RailSymbol,
-  OctagonAlert,
-  OctagonX,
-  CalendarDays,
-  ListTodo,
-  Maximize2,
-} from "lucide-react";
-import { useState, Fragment } from "react";
+import { CalendarDays, ListTodo, Maximize2, Sun } from "lucide-react";
+import { useState } from "react";
+import TrainsCard, { type Train } from "./trains";
 
-const trains = [
+const timeNow = new Date("2025-12-12 08:00");
+const trains: Array<Train> = [
   {
-    time: "08:03",
+    time: new Date("2025-12-12 08:03"),
     from: "London Victoria",
     to: "Clapham Junction",
-    expectedTime: "08:03",
+    expectedTime: new Date("2025-12-12 08:03"),
     status: "On Time",
   },
   {
-    time: "08:17",
+    time: new Date("2025-12-12 08:17"),
     from: "Clapham Junction",
     to: "Brighton",
-    expectedTime: "08:17",
+    expectedTime: new Date("2025-12-12 08:17"),
     status: "On Time",
   },
   {
-    time: "08:35",
+    time: new Date("2025-12-12 08:35"),
     from: "Brighton",
     to: "London Victoria",
-    expectedTime: "08:50",
+    expectedTime: new Date("2025-12-12 08:50"),
     status: "Delayed",
   },
   {
-    time: "08:50",
+    time: new Date("2025-12-12 08:50"),
     from: "London Victoria",
     to: "Clapham Junction",
-    expectedTime: "08:50",
+    expectedTime: new Date("2025-12-12 08:50"),
     status: "Cancelled",
+  },
+  {
+    time: new Date("2025-12-12 09:50"),
+    from: "London Victoria",
+    to: "Clapham Junction",
+    expectedTime: new Date("2025-12-12 09:50"),
+    status: "On Time",
   },
 ];
 
@@ -90,42 +90,7 @@ export default function HomeDashboard() {
       </Card>
 
       {/* Trains Section */}
-      <Card className="flex flex-col h-full">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <RailSymbol className="w-5 h-5 text-red-600" /> Trains
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="grid grid-cols-3 grid-cols-[auto_auto_1fr] gap-4 items-center">
-          {trains.map((train, index) => (
-            <Fragment key={index}>
-                <div className="flex flex-col leading-tight">
-                  <span>{train.expectedTime}</span>
-                  <span className="text-xs text-gray-400 align-bottom">
-                    {train.expectedTime !== train.time ? train.time : null}
-                  </span>
-                </div>
-                <span className="text-left">{train.to}</span>
-                <span
-                  className={`text-sm ${
-                    train.status === "Delayed"
-                      ? "text-orange-500"
-                      : train.status === "Cancelled"
-                      ? "text-red-500"
-                      : ""
-                  }`}
-                >
-                  {train.status === "Delayed" ? (
-                    <OctagonAlert className="inline" />
-                  ) : null}
-                  {train.status === "Cancelled" ? <OctagonX /> : null}
-                </span>
-            </Fragment>
-          ))}
-          </div>
-        </CardContent>
-      </Card>
+      <TrainsCard trains={trains} timeNow={timeNow} />
 
       {/* Weather Section */}
       <Card className="flex flex-col h-full">
