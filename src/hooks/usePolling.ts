@@ -75,6 +75,7 @@ export function usePolling<T>(
 
       try {
         const pollTime = new Date();
+        console.log("Polling at:", pollTime.toISOString());
         const result = await fetchData();
         if (isMounted) {
           setData({ data: result, pollTime });
@@ -86,13 +87,15 @@ export function usePolling<T>(
           setLoading(false);
           const nextInterval = interval(new Date());
           if (nextInterval !== undefined) {
+            const nextPollTime = new Date(Date.now() + nextInterval);
+            console.log(`Next poll at ${nextPollTime} (in ${nextInterval} ms)`);
             timeoutRef.current = setTimeout(poll, nextInterval);
           }
         }
       }
     };
 
-    if (immediate) {
+    if (!timeoutRef.current) {
       poll();
     }
 

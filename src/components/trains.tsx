@@ -1,4 +1,4 @@
-import { Footprints, OctagonAlert, OctagonX, RailSymbol } from "lucide-react";
+import { OctagonAlert, OctagonX, RailSymbol } from "lucide-react";
 import {
   Card,
   CardAction,
@@ -9,6 +9,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Fragment } from "react";
 import { CardFooter } from "./ui/card";
+import { LeaveTime } from "./leavetime";
 
 export type Train = {
   time: Date | null;
@@ -32,11 +33,6 @@ function getTime(date: Date): string {
   });
 }
 
-function minuteDiff(a: Date, b: Date): number {
-  return Math.floor((a.getTime() - b.getTime()) / 1000 / 60) - 15;
-}
-
-// TODO: Add a last updated at timestamp
 // TODO: Add cn from lib/utils.ts for classnames
 // TODO: Dark mode
 // TODO: Testing
@@ -49,21 +45,16 @@ export default function TrainsCard({
 }: TrainsCardProps) {
   const sortedTrains = trains
     .filter((t) => t.expectedTime !== null && t.time !== null)
-    .filter((t) => t.to !== "Cambridge" && t.to !== "Bishops Stortford")
+    .filter(
+      (t) =>
+        t.to !== "Cambridge" &&
+        t.to !== "Bishops Stortford" &&
+        t.to !== "Cambridge North" &&
+        t.to !== "Ely (Cambs)"
+    )
     .sort((a, b) => a.expectedTime!.getTime() - b.expectedTime!.getTime())
     .filter((t) => t.expectedTime!.getTime() > timeNow.getTime())
     .slice(0, 5);
-
-  const minutesToLeave =
-    sortedTrains.length > 0
-      ? minuteDiff(sortedTrains[0].expectedTime, timeNow)
-      : 0;
-  const leaveColour =
-    minutesToLeave >= 0
-      ? "text-muted-foreground"
-      : minutesToLeave >= -4
-      ? "text-orange-500"
-      : "text-red-500";
 
   return (
     <Card className="flex flex-col h-full min-h-0 gap-3 overflow-hidden justify-between">
@@ -75,11 +66,10 @@ export default function TrainsCard({
           </span>
         </CardTitle>
         <CardAction>
-          <div className="text-right">
-            <div className="text-sm text-right text-muted-foreground">
-              {minutesToLeave} mins{" "}
-              <Footprints className={`inline ${leaveColour}`} />
-            </div>
+          <div className="text-sm text-right">
+            <LeaveTime
+              nextTrainTime={sortedTrains[0]?.expectedTime ?? undefined}
+            />
           </div>
         </CardAction>
       </CardHeader>
@@ -125,7 +115,7 @@ export default function TrainsCard({
       <CardFooter className="flex w-full justify-end -mb-4 pb-0">
         {dataUpdatedAt && (
           <div className="text-xs text-muted-foreground">
-            updated at {dataUpdatedAt.toLocaleTimeString()}
+            last query {dataUpdatedAt.toLocaleTimeString()}
           </div>
         )}
       </CardFooter>

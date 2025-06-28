@@ -1,7 +1,7 @@
 import type { Train } from "../components/trains";
 import { z } from "zod";
 import { testResponse } from "./testResponse";
-import { getCachedTrains } from "./cache";
+import { getCachedTrains, setCachedTrains } from "./cache";
 
 const timestringToDate = (timeString: string | null): Date | null => {
   if (!timeString) return null;
@@ -95,6 +95,7 @@ export async function getRoydonTrains(
 
   const cached = getCachedTrains();
   if (cached !== null) {
+    console.log("Using cached trains data");
     return cached;
   }
 
@@ -102,6 +103,7 @@ export async function getRoydonTrains(
     params.cache === "test" ? fetchTestRoydonTrains : fetchRoydonTrains;
   const results = await fetcher(params);
   if (params.cache === "on") {
+    console.log("Caching fetched trains data");
     setCachedTrains(results);
   }
   return results;
@@ -116,6 +118,7 @@ async function fetchRoydonTrains(params: Parameters): Promise<Train[]> {
     }
   });
 
+  console.log("Fetching data from:", url.toString());
   const resp = await fetch(url.toString());
   if (!resp.ok) {
     throw new Error(`Error fetching data: ${resp.statusText}`);
@@ -128,5 +131,6 @@ async function fetchRoydonTrains(params: Parameters): Promise<Train[]> {
 async function fetchTestRoydonTrains(): Promise<Train[]> {
   // This function is used for testing purposes only
   const parsedData = zTransportApiResp.parse(testResponse);
+  console.log("Return test data for Roydon trains");
   return Promise.resolve(parsedData.departures.all);
 }
