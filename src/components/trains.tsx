@@ -52,7 +52,7 @@ export default function TrainsCard({
     .filter((t) => t.to !== "Cambridge" && t.to !== "Bishops Stortford")
     .sort((a, b) => a.expectedTime!.getTime() - b.expectedTime!.getTime())
     .filter((t) => t.expectedTime!.getTime() > timeNow.getTime())
-    .slice(0, 7);
+    .slice(0, 5);
 
   const minutesToLeave =
     sortedTrains.length > 0
@@ -66,7 +66,7 @@ export default function TrainsCard({
       : "text-red-500";
 
   return (
-    <Card className="flex flex-col h-full gap-3 overflow-y-hidden">
+    <Card className="flex flex-col h-full min-h-0 gap-3 overflow-hidden justify-between">
       <CardHeader className="flex flex-row items-start justify-between">
         <CardTitle className="flex items-center gap-2">
           <span>
@@ -83,7 +83,7 @@ export default function TrainsCard({
           </div>
         </CardAction>
       </CardHeader>
-      <CardContent className="space-y-2 overflow-y-hidden">
+      <CardContent className="flex-1 min-h-0 space-y-2 overflow-y-hidden">
         <div className="grid grid-cols-3 grid-cols-[auto_auto_1fr] gap-y-1 gap-x-4 items-center">
           {sortedTrains.map((train, index) => (
             <Fragment key={index}>
@@ -122,7 +122,7 @@ export default function TrainsCard({
           ))}
         </div>
       </CardContent>
-      <CardFooter className="flex w-full justify-end">
+      <CardFooter className="flex w-full justify-end -mb-4 pb-0">
         {dataUpdatedAt && (
           <div className="text-xs text-muted-foreground">
             updated at {dataUpdatedAt.toLocaleTimeString()}
