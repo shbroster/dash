@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Fragment } from "react";
+import { CardFooter } from "./ui/card";
 
 export type Train = {
   time: Date | null;
@@ -19,6 +20,7 @@ export type Train = {
 
 export type TrainsCardProps = {
   timeNow: Date;
+  dataUpdatedAt: Date | null;
   trains: Array<Train>;
 };
 
@@ -40,24 +42,32 @@ function minuteDiff(a: Date, b: Date): number {
 // TODO: Testing
 // TODO: Warning color scheme
 
-export default function TrainsCard({ trains, timeNow }: TrainsCardProps) {
+export default function TrainsCard({
+  trains,
+  timeNow,
+  dataUpdatedAt,
+}: TrainsCardProps) {
   const sortedTrains = trains
     .filter((t) => t.expectedTime !== null && t.time !== null)
+    .filter((t) => t.to !== "Cambridge" && t.to !== "Bishops Stortford")
     .sort((a, b) => a.expectedTime!.getTime() - b.expectedTime!.getTime())
     .filter((t) => t.expectedTime!.getTime() > timeNow.getTime())
-      .slice(0, 5);
+    .slice(0, 7);
 
-  const minutesToLeave = sortedTrains.length > 0 ? minuteDiff(sortedTrains[0].expectedTime, timeNow) : 0;
+  const minutesToLeave =
+    sortedTrains.length > 0
+      ? minuteDiff(sortedTrains[0].expectedTime, timeNow)
+      : 0;
   const leaveColour =
     minutesToLeave >= 0
-      ? "text-gray-500"
+      ? "text-muted-foreground"
       : minutesToLeave >= -4
       ? "text-orange-500"
       : "text-red-500";
 
   return (
-    <Card className="flex flex-col h-full overflow-y-hidden">
-      <CardHeader>
+    <Card className="flex flex-col h-full gap-3 overflow-y-hidden">
+      <CardHeader className="flex flex-row items-start justify-between">
         <CardTitle className="flex items-center gap-2">
           <span>
             <RailSymbol className="w-5 h-5 text-red-600 inline transform scale-x-150" />{" "}
@@ -65,19 +75,21 @@ export default function TrainsCard({ trains, timeNow }: TrainsCardProps) {
           </span>
         </CardTitle>
         <CardAction>
-          <span className="text-sm text-gray-600">
-            {minutesToLeave} mins{" "}
-            <Footprints className={`inline ${leaveColour}`} />
-          </span>
+          <div className="text-right">
+            <div className="text-sm text-right text-muted-foreground">
+              {minutesToLeave} mins{" "}
+              <Footprints className={`inline ${leaveColour}`} />
+            </div>
+          </div>
         </CardAction>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-2 overflow-y-hidden">
         <div className="grid grid-cols-3 grid-cols-[auto_auto_1fr] gap-y-1 gap-x-4 items-center">
           {sortedTrains.map((train, index) => (
             <Fragment key={index}>
               <div className="flex flex-col leading-none">
                 <span>{getTime(train.expectedTime)}</span>
-                <span className="text-xs text-gray-500 align-bottom">
+                <span className="text-xs text-muted-foreground align-bottom">
                   {train.expectedTime.getTime() !== train.time.getTime()
                     ? getTime(train.time)
                     : null}
@@ -85,7 +97,8 @@ export default function TrainsCard({ trains, timeNow }: TrainsCardProps) {
               </div>
               <span
                 className={`text-left ${
-                  train.status === "Cancelled" && "line-through text-gray-500"
+                  train.status === "Cancelled" &&
+                  "line-through text-muted-foreground"
                 }`}
               >
                 {train.to}
@@ -109,6 +122,13 @@ export default function TrainsCard({ trains, timeNow }: TrainsCardProps) {
           ))}
         </div>
       </CardContent>
+      <CardFooter className="flex w-full justify-end">
+        {dataUpdatedAt && (
+          <div className="text-xs text-muted-foreground">
+            updated at {dataUpdatedAt.toLocaleTimeString()}
+          </div>
+        )}
+      </CardFooter>
     </Card>
   );
 }

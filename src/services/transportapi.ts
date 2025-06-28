@@ -1,5 +1,7 @@
 import type { Train } from "../components/trains";
 import { z } from "zod";
+import { testResponse } from "./testResponse";
+import { getCachedTrains } from "./cache";
 
 const timestringToDate = (timeString: string | null): Date | null => {
   if (!timeString) return null;
@@ -67,7 +69,7 @@ const zTransportApiTrain = z
   }));
 
 const zTransportApiResp = z.object({
-  depatures: z.object({
+  departures: z.object({
     all: z.array(zTransportApiTrain),
   }),
 });
@@ -77,18 +79,37 @@ type Parameters = {
   to_offset?: string;
   app_id: string;
   app_key: string;
+  cache?: "on" | "off" | "test";
 };
 
 const defaultParams: Partial<Parameters> = {
   live: true,
   to_offset: "PT10:00:00",
+  cache: "test",
 };
 
-export async function getRoydonTrains(params: Parameters): Promise<Train[]> {
+export async function getRoydonTrains(
+  callerParams: Parameters
+): Promise<Train[]> {
+  const params = { ...defaultParams, ...callerParams };
+
+  const cached = getCachedTrains();
+  if (cached !== null) {
+    return cached;
+  }
+
+  const fetcher =
+    params.cache === "test" ? fetchTestRoydonTrains : fetchRoydonTrains;
+  const results = await fetcher(params);
+  if (params.cache === "on") {
+    setCachedTrains(results);
+  }
+  return results;
+}
+
+async function fetchRoydonTrains(params: Parameters): Promise<Train[]> {
   const queryParams = { ...defaultParams, ...params };
-  const url = new URL(
-    "https://transportapi.com/v3/uk/train/station/Roydon.json"
-  );
+  const url = new URL("https://transportapi.com/v3/uk/train/station/RYN.json");
   Object.keys(queryParams).forEach((key) => {
     if (queryParams[key] !== undefined) {
       url.searchParams.append(key, queryParams[key]);
@@ -101,5 +122,11 @@ export async function getRoydonTrains(params: Parameters): Promise<Train[]> {
   }
   const data = await resp.json();
   const parsedData = zTransportApiResp.parse(data);
-  return parsedData.depatures.all;
+  return parsedData.departures.all;
+}
+
+async function fetchTestRoydonTrains(): Promise<Train[]> {
+  // This function is used for testing purposes only
+  const parsedData = zTransportApiResp.parse(testResponse);
+  return Promise.resolve(parsedData.departures.all);
 }

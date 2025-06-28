@@ -3,53 +3,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "./ui/button";
 import { CalendarDays, ListTodo, Maximize2, Sun } from "lucide-react";
 import { useState } from "react";
-import TrainsCard, { type Train } from "./trains";
+import TrainsCard from "./trains";
 import { getNextInterval, usePolling } from "../hooks/usePolling";
 import { getRoydonTrains } from "../services/transportapi";
 
-const timeNow = new Date("2025-12-12 08:00");
-// const trains: Array<Train> = [
-//   {
-//     time: new Date("2025-12-12 08:03"),
-//     from: "London Victoria",
-//     to: "Clapham Junction",
-//     expectedTime: new Date("2025-12-12 08:03"),
-//     status: "On Time",
-//   },
-//   {
-//     time: new Date("2025-12-12 08:17"),
-//     from: "Clapham Junction",
-//     to: "Brighton",
-//     expectedTime: new Date("2025-12-12 08:17"),
-//     status: "On Time",
-//   },
-//   {
-//     time: new Date("2025-12-12 08:35"),
-//     from: "Brighton",
-//     to: "London Victoria",
-//     expectedTime: new Date("2025-12-12 08:50"),
-//     status: "Delayed",
-//   },
-//   {
-//     time: new Date("2025-12-12 08:50"),
-//     from: "London Victoria",
-//     to: "Clapham Junction",
-//     expectedTime: new Date("2025-12-12 08:50"),
-//     status: "Cancelled",
-//   },
-//   {
-//     time: new Date("2025-12-12 09:50"),
-//     from: "London Victoria",
-//     to: "Clapham Junction",
-//     expectedTime: new Date("2025-12-12 09:50"),
-//     status: "On Time",
-//   },
-// ];
 
 export default function HomeDashboard() {
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const { data: trains } = usePolling(
-    () => getRoydonTrains({ app_id: "123", app_key: "456" }),
+  const { data: trains, pollTime } = usePolling(
+    () => getRoydonTrains({ app_id: "", app_key: "" }),
     getNextInterval,
     true
   );
@@ -97,7 +59,7 @@ export default function HomeDashboard() {
       </Card>
 
       {/* Trains Section */}
-      <TrainsCard trains={trains ?? []} timeNow={timeNow} />
+      <TrainsCard trains={trains ?? []} timeNow={new Date()} dataUpdatedAt={pollTime} />
 
       {/* Weather Section */}
       <Card className="flex flex-col h-full">
