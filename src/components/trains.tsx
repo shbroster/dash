@@ -10,10 +10,10 @@ import { Separator } from "@/components/ui/separator";
 import { Fragment } from "react";
 
 export type Train = {
-  time: Date;
-  expectedTime: Date;
-  from: string;
-  to: string;
+  time: Date | null;
+  expectedTime: Date | null;
+  from: string | null;
+  to: string | null;
   status: "On Time" | "Delayed" | "Cancelled";
 };
 
@@ -34,12 +34,20 @@ function minuteDiff(a: Date, b: Date): number {
   return Math.floor((a.getTime() - b.getTime()) / 1000 / 60) - 15;
 }
 
+// TODO: Add a last updated at timestamp
+// TODO: Add cn from lib/utils.ts for classnames
+// TODO: Dark mode
+// TODO: Testing
+// TODO: Warning color scheme
+
 export default function TrainsCard({ trains, timeNow }: TrainsCardProps) {
   const sortedTrains = trains
-    .sort((a, b) => a.expectedTime.getTime() - b.expectedTime.getTime())
-    .filter((t) => t.expectedTime.getTime() > timeNow.getTime())
-    .slice(0, 5);
-  const minutesToLeave = minuteDiff(sortedTrains[0].expectedTime, timeNow);
+    .filter((t) => t.expectedTime !== null && t.time !== null)
+    .sort((a, b) => a.expectedTime!.getTime() - b.expectedTime!.getTime())
+    .filter((t) => t.expectedTime!.getTime() > timeNow.getTime())
+      .slice(0, 5);
+
+  const minutesToLeave = sortedTrains.length > 0 ? minuteDiff(sortedTrains[0].expectedTime, timeNow) : 0;
   const leaveColour =
     minutesToLeave >= 0
       ? "text-gray-500"
