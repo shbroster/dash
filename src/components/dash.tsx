@@ -1,5 +1,4 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "./ui/button";
 import { CalendarDays, ListTodo, Maximize2, Sun } from "lucide-react";
 import { useState } from "react";
@@ -7,13 +6,16 @@ import TrainsCard from "./trains";
 import { getNextInterval, usePolling } from "../hooks/usePolling";
 import { getRoydonTrains } from "../services/transportapi";
 
-
 export default function HomeDashboard() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const { data: trains, pollTime } = usePolling(
-    () => getRoydonTrains({ app_id: "", app_key: "" }),
-    getNextInterval,
-    true
+    () =>
+      getRoydonTrains({
+        app_id: import.meta.env.VITE_APP_ID,
+        app_key: import.meta.env.VITE_APP_KEY,
+        cache: import.meta.env.VITE_CACHE_MODE,
+      }),
+    getNextInterval
   );
 
   const toggleFullscreen = async () => {
@@ -59,7 +61,11 @@ export default function HomeDashboard() {
       </Card>
 
       {/* Trains Section */}
-      <TrainsCard trains={trains ?? []} timeNow={new Date()} dataUpdatedAt={pollTime} />
+      <TrainsCard
+        trains={trains ?? []}
+        timeNow={new Date()}
+        dataUpdatedAt={pollTime}
+      />
 
       {/* Weather Section */}
       <Card className="flex flex-col h-full">
@@ -85,8 +91,8 @@ export default function HomeDashboard() {
             <ListTodo className="w-5 h-5" /> To-Do
           </CardTitle>
         </CardHeader>
-         <CardContent className="space-y-2">
-         {/*} <div className="flex items-center space-x-2">
+        <CardContent className="space-y-2">
+          {/*} <div className="flex items-center space-x-2">
             <Checkbox id="task1" />
             <label htmlFor="task1" className="text-sm">
               Take out the trash

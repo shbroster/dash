@@ -1,7 +1,16 @@
-import type { Train } from "../components/trains";
+import z from "zod";
 
 const CACHE_KEY = "roydon-trains";
 const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
+const zTrain = z.object({
+  time: z.coerce.date().nullable(),
+  expectedTime: z.coerce.date().nullable(),
+  from: z.string().nullable(),
+  to: z.string().nullable(),
+  status: z.enum(["On Time", "Delayed", "Cancelled"]),
+});
+type Train = z.infer<typeof zTrain>;
 
 export const getCachedTrains = (): Train[] | null => {
   if (typeof window === "undefined") return null;
@@ -10,7 +19,7 @@ export const getCachedTrains = (): Train[] | null => {
   const data = JSON.parse(cached);
   if (!isCacheValid(data)) return null;
 
-  return data.data;
+  return zTrain.array().parse(data.data);
 };
 
 export const setCachedTrains = (data: Train[]): void => {

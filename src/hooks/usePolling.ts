@@ -105,7 +105,7 @@ export function usePolling<T>(
       isMounted = false;
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
+        //timeoutRef.current = null;
       }
     };
   }, [fetchData, interval]);

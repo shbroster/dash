@@ -91,7 +91,13 @@ const defaultParams: Partial<Parameters> = {
 export async function getRoydonTrains(
   callerParams: Parameters
 ): Promise<Train[]> {
-  const params = { ...defaultParams, ...callerParams };
+  const params = { ...callerParams };
+  Object.entries(defaultParams).forEach(([key, value]) => {
+    if (params[key] === undefined) {
+      params[key] = value;
+    }
+  });
+  console.log("Fetching Roydon trains with params:", params);
 
   if (params.cache !== "off") {
     const cached = getCachedTrains();
@@ -104,7 +110,7 @@ export async function getRoydonTrains(
   const fetcher =
     params.cache === "test" ? fetchTestRoydonTrains : fetchRoydonTrains;
   const results = await fetcher(params);
-  if (params.cache === "on") {
+  if (params.cache !== "off") {
     console.log("Caching fetched trains data");
     setCachedTrains(results);
   }
