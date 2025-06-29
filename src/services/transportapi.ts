@@ -93,10 +93,12 @@ export async function getRoydonTrains(
 ): Promise<Train[]> {
   const params = { ...defaultParams, ...callerParams };
 
-  const cached = getCachedTrains();
-  if (cached !== null) {
-    console.log("Using cached trains data");
-    return cached;
+  if (params.cache !== "off") {
+    const cached = getCachedTrains();
+    if (cached !== null) {
+      console.log("Using cached trains data");
+      return cached;
+    }
   }
 
   const fetcher =

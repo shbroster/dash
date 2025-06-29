@@ -7,7 +7,7 @@ global.fetch = mockFetch;
 
 describe("transportapi", () => {
   const mockResponse = {
-    depatures: {
+    departures: {
       all: [
         {
           origin_name: "London Liverpool Street",
@@ -47,6 +47,7 @@ describe("transportapi", () => {
     await getRoydonTrains({
       app_id: "test_app_id",
       app_key: "test_app_key",
+      cache: "off",
     });
 
     expect(mockFetch).toHaveBeenCalledTimes(1);
@@ -66,6 +67,7 @@ describe("transportapi", () => {
     const result = await getRoydonTrains({
       app_id: "test_app_id",
       app_key: "test_app_key",
+      cache: "off",
     });
 
     expect(result).toHaveLength(3);
@@ -97,6 +99,7 @@ describe("transportapi", () => {
       getRoydonTrains({
         app_id: "test_app_id",
         app_key: "test_app_key",
+        cache: "off",
       })
     ).rejects.toThrow("Error fetching data: Not Found");
   });

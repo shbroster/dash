@@ -58,13 +58,12 @@ export const getNextInterval = (now: Date) => {
 
 export function usePolling<T>(
   fetchData: () => Promise<T>,
-  interval: (now: Date) => number | undefined,
-  immediate: boolean = true
+  interval: (now: Date) => number | undefined
 ): { data: T | null; pollTime: Date | null; loading: boolean } {
   const [pollData, setData] = useState<{ data: T; pollTime: Date } | null>(
     null
   );
-  const [loading, setLoading] = useState<boolean>(immediate);
+  const [loading, setLoading] = useState<boolean>(true);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -85,10 +84,13 @@ export function usePolling<T>(
       } finally {
         if (isMounted) {
           setLoading(false);
-          const nextInterval = interval(new Date());
+          const now = new Date();
+          const nextInterval = interval(now);
           if (nextInterval !== undefined) {
-            const nextPollTime = new Date(Date.now() + nextInterval);
-            console.log(`Next poll at ${nextPollTime} (in ${nextInterval} ms)`);
+            const nextPollTime = new Date(now.getTime() + nextInterval);
+            console.log(
+              `Next poll at ${nextPollTime.toISOString()} (in ${nextInterval} ms)`
+            );
             timeoutRef.current = setTimeout(poll, nextInterval);
           }
         }
@@ -103,9 +105,10 @@ export function usePolling<T>(
       isMounted = false;
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
       }
     };
-  }, [fetchData, interval, immediate]);
+  }, [fetchData, interval]);
 
   const { data, pollTime } = pollData ?? { data: null, pollTime: null };
   return { data, pollTime, loading };

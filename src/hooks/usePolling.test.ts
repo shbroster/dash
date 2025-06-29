@@ -15,18 +15,17 @@ const getIntervalFunc = () => {
 
 describe("usePolling", () => {
   const mockFetchData = vi.fn();
-  const mockInterval = 1000;
 
   beforeEach(() => {
     mockFetchData.mockClear();
   });
 
-  it("should fetch data immediately when immediate is true", async () => {
+  it("should fetch data", async () => {
     mockFetchData.mockResolvedValue("test data");
     const intervalFunc = getIntervalFunc();
 
     const { result } = renderHook(() =>
-      usePolling(mockFetchData, intervalFunc, true)
+      usePolling(mockFetchData, intervalFunc)
     );
 
     expect(result.current.loading).toBe(true);
@@ -44,26 +43,13 @@ describe("usePolling", () => {
     });
   });
 
-  it("should not fetch immediately when immediate is false", () => {
-    const intervalFunc = getIntervalFunc();
-
-    const { result } = renderHook(() =>
-      usePolling(mockFetchData, intervalFunc, false)
-    );
-
-    expect(result.current.loading).toBe(false);
-    expect(mockFetchData).not.toHaveBeenCalled();
-  });
-
   it("should handle errors gracefully", async () => {
     const error = new Error("Failed to fetch");
     mockFetchData.mockResolvedValueOnce("test data");
     mockFetchData.mockRejectedValueOnce(error);
     console.error = vi.fn();
 
-    const { result } = renderHook(() =>
-      usePolling(mockFetchData, () => mockInterval)
-    );
+    const { result } = renderHook(() => usePolling(mockFetchData, () => 50));
 
     await waitFor(() => {
       expect(mockFetchData).toHaveBeenCalledTimes(2);

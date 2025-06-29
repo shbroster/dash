@@ -69,12 +69,12 @@ export default function HomeDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          <div className="text-lg font-medium">15°C, Partly Cloudy</div>
+          {/* <div className="text-lg font-medium">15°C, Partly Cloudy</div>
           <div className="flex justify-between text-sm text-muted-foreground">
             <span>High: 18°C</span>
             <span>Low: 10°C</span>
           </div>
-          <div>Humidity: 65%</div>
+          <div>Humidity: 65%</div> */}
         </CardContent>
       </Card>
 
@@ -85,8 +85,8 @@ export default function HomeDashboard() {
             <ListTodo className="w-5 h-5" /> To-Do
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex items-center space-x-2">
+         <CardContent className="space-y-2">
+         {/*} <div className="flex items-center space-x-2">
             <Checkbox id="task1" />
             <label htmlFor="task1" className="text-sm">
               Take out the trash
@@ -103,7 +103,7 @@ export default function HomeDashboard() {
             <label htmlFor="task3" className="text-sm">
               Buy groceries
             </label>
-          </div>
+          </div> */}
         </CardContent>
       </Card>
     </div>
