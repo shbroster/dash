@@ -1,5 +1,5 @@
 import { Footprints } from "lucide-react";
-import { use, useEffect, useState } from "react";
+import { useTickProvider } from "../providers/tickprovider";
 
 const walkTimeMins = 15; // time to walk to the station in minutes
 
@@ -12,17 +12,7 @@ type LeaveTimeProps = {
 };
 
 export function LeaveTime({ nextTrainTime }: LeaveTimeProps) {
-  const [now, setNow] = useState(new Date());
-
-  useEffect(() => {
-    // tick every 5 seconds
-    const interval = setInterval(() => {
-      setNow(new Date());
-    }, 5_000);
-
-    // cleanup on unmount
-    return () => clearInterval(interval);
-  }, []);
+  const { everyMinute: now } = useTickProvider();
 
   if (!nextTrainTime) {
     return 

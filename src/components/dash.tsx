@@ -3,20 +3,9 @@ import { Button } from "./ui/button";
 import { CalendarDays, ListTodo, Maximize2, Sun } from "lucide-react";
 import { useState } from "react";
 import TrainsCard from "./trains";
-import { getNextInterval, usePolling } from "../hooks/usePolling";
-import { getRoydonTrains } from "../services/transportapi";
 
 export default function HomeDashboard() {
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const { data: trains, pollTime } = usePolling(
-    () =>
-      getRoydonTrains({
-        app_id: import.meta.env.VITE_APP_ID,
-        app_key: import.meta.env.VITE_APP_KEY,
-        cache: import.meta.env.VITE_CACHE_MODE,
-      }),
-    getNextInterval
-  );
 
   const toggleFullscreen = async () => {
     try {
@@ -61,11 +50,7 @@ export default function HomeDashboard() {
       </Card>
 
       {/* Trains Section */}
-      <TrainsCard
-        trains={trains ?? []}
-        timeNow={new Date()}
-        dataUpdatedAt={pollTime}
-      />
+      <TrainsCard />
 
       {/* Weather Section */}
       <Card className="flex flex-col h-full">

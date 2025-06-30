@@ -1,5 +1,5 @@
 import type { Train } from "../components/trains";
-import { z } from "zod";
+import { boolean, z } from "zod";
 import { testResponse } from "./testResponse";
 import { getCachedTrains, setCachedTrains } from "./cache";
 
@@ -79,18 +79,20 @@ type Parameters = {
   to_offset?: string;
   app_id: string;
   app_key: string;
-  cache?: "on" | "off" | "test";
+  cache?: "on" | "off";
+  testing?: boolean;
 };
 
 const defaultParams: Partial<Parameters> = {
   live: true,
   to_offset: "PT10:00:00",
-  cache: "test",
+  cache: "off",
+  testing: true,
 };
 
 export async function getRoydonTrains(
   callerParams: Parameters
-): Promise<Train[]> {
+): Promise<{ trains: Train[]; queriedAt: Date }> {
   const params = { ...callerParams };
   Object.entries(defaultParams).forEach(([key, value]) => {
     if (params[key] === undefined) {
@@ -99,22 +101,21 @@ export async function getRoydonTrains(
   });
   console.log("Fetching Roydon trains with params:", params);
 
-  if (params.cache !== "off") {
+  if (params.cache === "on") {
     const cached = getCachedTrains();
     if (cached !== null) {
       console.log("Using cached trains data");
-      return cached;
+      return { trains: cached.trains, queriedAt: new Date(cached.cacheTime) };
     }
   }
 
-  const fetcher =
-    params.cache === "test" ? fetchTestRoydonTrains : fetchRoydonTrains;
+  const fetcher = params.testing ? fetchTestRoydonTrains : fetchRoydonTrains;
   const results = await fetcher(params);
-  if (params.cache !== "off") {
+  if (params.cache === "on") {
     console.log("Caching fetched trains data");
     setCachedTrains(results);
   }
-  return results;
+  return { trains: results, queriedAt: new Date() };
 }
 
 async function fetchRoydonTrains(params: Parameters): Promise<Train[]> {

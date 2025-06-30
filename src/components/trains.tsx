@@ -7,9 +7,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { CardFooter } from "./ui/card";
 import { LeaveTime } from "./leavetime";
+import { useTickProvider } from "../providers/tickprovider";
+import { getRoydonTrains } from "../services/transportapi";
 
 export type Train = {
   time: Date | null;
@@ -20,7 +22,6 @@ export type Train = {
 };
 
 export type TrainsCardProps = {
-  timeNow: Date;
   dataUpdatedAt: Date | null;
   trains: Array<Train>;
 };
@@ -33,17 +34,11 @@ function getTime(date: Date): string {
   });
 }
 
-// TODO: Add cn from lib/utils.ts for classnames
-// TODO: Dark mode
-// TODO: Testing
-// TODO: Warning color scheme
-
-export default function TrainsCard({
-  trains,
-  timeNow,
-  dataUpdatedAt,
-}: TrainsCardProps) {
-  const sortedTrains = trains
+const sortAndFilterTrains = (
+  trains: Array<Train>,
+  timeNow: Date
+): Array<Train> => {
+  return trains
     .filter((t) => t.expectedTime !== null && t.time !== null)
     .filter(
       (t) =>
@@ -55,6 +50,32 @@ export default function TrainsCard({
     .sort((a, b) => a.expectedTime!.getTime() - b.expectedTime!.getTime())
     .filter((t) => t.expectedTime!.getTime() > timeNow.getTime())
     .slice(0, 5);
+};
+
+// TODO: Add cn from lib/utils.ts for classnames
+// TODO: Dark mode
+// TODO: Testing
+// TODO: Warning color scheme
+
+export default function TrainsCard() {
+  const { everyMinute: timeNow } = useTickProvider();
+  const [queryTime, setQueryTime] = useState<Date>()
+  const [sortedTrains, setSortedTrains] = useState<Train[]>([])
+
+  useEffect(() => {
+    const updateTrains = async () => {
+      const { trains, queriedAt} = await getRoydonTrains({
+        app_id: import.meta.env.VITE_APP_ID,
+        app_key: import.meta.env.VITE_APP_KEY,
+        cache: import.meta.env.VITE_CACHE_MODE,
+        testing: import.meta.env.VITE_TESTING_MODE !== "false",
+      })
+      setSortedTrains(sortAndFilterTrains(trains, timeNow))
+      setQueryTime(queriedAt)
+    }
+
+    updateTrains()
+  }, [timeNow])
 
   return (
     <Card className="flex flex-col h-full min-h-0 gap-3 overflow-hidden justify-between">
@@ -113,9 +134,9 @@ export default function TrainsCard({
         </div>
       </CardContent>
       <CardFooter className="flex w-full justify-end -mb-4 pb-0">
-        {dataUpdatedAt && (
+        {queryTime && (
           <div className="text-xs text-muted-foreground">
-            last query {dataUpdatedAt.toLocaleTimeString()}
+            last query {queryTime.toLocaleTimeString()}
           </div>
         )}
       </CardFooter>

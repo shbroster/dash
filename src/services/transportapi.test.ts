@@ -48,6 +48,7 @@ describe("transportapi", () => {
       app_id: "test_app_id",
       app_key: "test_app_key",
       cache: "off",
+      testing: false,
     });
 
     expect(mockFetch).toHaveBeenCalledTimes(1);
@@ -64,29 +65,30 @@ describe("transportapi", () => {
       json: async () => mockResponse,
     });
 
-    const result = await getRoydonTrains({
+    const { trains } = await getRoydonTrains({
       app_id: "test_app_id",
       app_key: "test_app_key",
       cache: "off",
+      testing: false,
     });
 
-    expect(result).toHaveLength(3);
+    expect(trains).toHaveLength(3);
 
     // Test first train (delayed)
-    expect(result[0].from).toBe("London Liverpool Street");
-    expect(result[0].to).toBe("Cambridge");
-    expect(result[0].status).toBe("Delayed");
-    expect(result[0].time).toBeInstanceOf(Date);
-    expect(result[0].expectedTime).toBeInstanceOf(Date);
-    expect(result[0].time!.getHours()).toBe(8);
-    expect(result[0].time!.getMinutes()).toBe(30);
+    expect(trains[0].from).toBe("London Liverpool Street");
+    expect(trains[0].to).toBe("Cambridge");
+    expect(trains[0].status).toBe("Delayed");
+    expect(trains[0].time).toBeInstanceOf(Date);
+    expect(trains[0].expectedTime).toBeInstanceOf(Date);
+    expect(trains[0].time!.getHours()).toBe(8);
+    expect(trains[0].time!.getMinutes()).toBe(30);
 
     // Test second train (on time)
-    expect(result[1].status).toBe("On Time");
+    expect(trains[1].status).toBe("On Time");
 
     // Test third train (cancelled)
-    expect(result[2].status).toBe("Cancelled");
-    expect(result[2].expectedTime).toBeNull();
+    expect(trains[2].status).toBe("Cancelled");
+    expect(trains[2].expectedTime).toBeNull();
   });
 
   it("should handle API errors", async () => {
@@ -100,6 +102,7 @@ describe("transportapi", () => {
         app_id: "test_app_id",
         app_key: "test_app_key",
         cache: "off",
+        testing: false,
       })
     ).rejects.toThrow("Error fetching data: Not Found");
   });
