@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { CalendarDays, ListTodo, Maximize2, Sun } from "lucide-react";
 import { useState } from "react";
 import TrainsCard from "./trains";
+import { cn } from "../lib/utils";
 
 export default function HomeDashboard() {
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -40,10 +41,10 @@ export default function HomeDashboard() {
       </Button>
 
       {/* Calendar Section */}
-      <Card className="flex flex-col h-full">
+      <Card className={cn("flex flex-col h-full")}>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CalendarDays className="w-5 h-5" /> Calendar
+          <CardTitle className={cn("flex items-center gap-2")}>
+            <CalendarDays className={cn("w-5 h-5")} /> Calendar
           </CardTitle>
         </CardHeader>
         <CardContent></CardContent>
@@ -53,13 +54,13 @@ export default function HomeDashboard() {
       <TrainsCard />
 
       {/* Weather Section */}
-      <Card className="flex flex-col h-full">
+      <Card className={cn("flex flex-col h-full")}>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sun className="w-5 h-5" /> Weather
+          <CardTitle className={cn("flex items-center gap-2")}>
+            <Sun className={cn("w-5 h-5")} /> Weather
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2">
+        <CardContent className={cn("space-y-2")}>
           {/* <div className="text-lg font-medium">15°C, Partly Cloudy</div>
           <div className="flex justify-between text-sm text-muted-foreground">
             <span>High: 18°C</span>
@@ -70,13 +71,13 @@ export default function HomeDashboard() {
       </Card>
 
       {/* To-Do Section */}
-      <Card className="flex flex-col h-full">
+      <Card className={cn("flex flex-col h-full")}>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ListTodo className="w-5 h-5" /> To-Do
+          <CardTitle className={cn("flex items-center gap-2")}>
+            <ListTodo className={cn("w-5 h-5")} /> To-Do
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2">
+        <CardContent className={cn("space-y-2")}>
           {/*} <div className="flex items-center space-x-2">
             <Checkbox id="task1" />
             <label htmlFor="task1" className="text-sm">
