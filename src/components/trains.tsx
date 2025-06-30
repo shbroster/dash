@@ -64,11 +64,12 @@ export default function TrainsCard() {
 
   useEffect(() => {
     const updateTrains = async () => {
+      console.log("Fetching trains at", timeNow.toLocaleTimeString(), import.meta.env)
       const { trains, queriedAt} = await getRoydonTrains({
         app_id: import.meta.env.VITE_APP_ID,
         app_key: import.meta.env.VITE_APP_KEY,
         cache: import.meta.env.VITE_CACHE_MODE,
-        testing: import.meta.env.VITE_TESTING_MODE !== "false",
+        testing: import.meta.env.VITE_TEST_MODE !== "false",
       })
       setSortedTrains(sortAndFilterTrains(trains, timeNow))
       setQueryTime(queriedAt)
