@@ -5,11 +5,11 @@ import { TickProvider } from "./providers/tickprovider";
 
 function App() {
   return (
-    <ThemeProvider>
-      <TickProvider>
-      <HomeDashboard />
-      </TickProvider>
-    </ThemeProvider>
+    <TickProvider>
+      <ThemeProvider>
+        <HomeDashboard />
+      </ThemeProvider>
+    </TickProvider>
   );
 }
 
