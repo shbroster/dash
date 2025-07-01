@@ -1,4 +1,4 @@
-import type { Train } from "../components/trains";
+import type { Train } from "../components/trains/trains";
 import { boolean, z } from "zod";
 import { testResponse } from "./testResponse";
 import { getCachedTrains, setCachedTrains } from "./cache";

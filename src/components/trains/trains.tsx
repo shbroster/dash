@@ -8,10 +8,11 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Fragment, useEffect, useState } from "react";
-import { CardFooter } from "./ui/card";
+import { CardFooter } from "../ui/card";
 import { LeaveTime } from "./leavetime";
-import { useTickProvider } from "../providers/tickprovider";
-import { getRoydonTrains } from "../services/transportapi";
+import { useTickProvider } from "../../providers/tickprovider";
+import { getRoydonTrains } from "../../services/transportapi";
+import { cn } from "../../lib/utils";
 
 export type Train = {
   time: Date | null;
@@ -26,7 +27,8 @@ export type TrainsCardProps = {
   trains: Array<Train>;
 };
 
-function getTime(date: Date): string {
+function getTime(date: Date | null): string {
+  if (date === null) return "?";
   return date.toLocaleString("en-GB", {
     hour: "2-digit",
     minute: "2-digit",
@@ -53,55 +55,72 @@ const sortAndFilterTrains = (
 };
 
 // TODO: Add cn from lib/utils.ts for classnames
-// TODO: Dark mode
 // TODO: Testing
 // TODO: Warning color scheme
 
 export default function TrainsCard() {
   const { everyMinute: timeNow } = useTickProvider();
-  const [queryTime, setQueryTime] = useState<Date>()
-  const [sortedTrains, setSortedTrains] = useState<Train[]>([])
+  const [queryTime, setQueryTime] = useState<Date>();
+  const [sortedTrains, setSortedTrains] = useState<Train[]>([]);
 
   useEffect(() => {
     const updateTrains = async () => {
-      console.log("Fetching trains at", timeNow.toLocaleTimeString(), import.meta.env)
-      const { trains, queriedAt} = await getRoydonTrains({
+      console.log(
+        "Fetching trains at",
+        timeNow.toLocaleTimeString(),
+        import.meta.env
+      );
+      const { trains, queriedAt } = await getRoydonTrains({
         app_id: import.meta.env.VITE_APP_ID,
         app_key: import.meta.env.VITE_APP_KEY,
         cache: import.meta.env.VITE_CACHE_MODE,
         testing: import.meta.env.VITE_TEST_MODE !== "false",
-      })
-      setSortedTrains(sortAndFilterTrains(trains, timeNow))
-      setQueryTime(queriedAt)
-    }
+      });
+      setSortedTrains(sortAndFilterTrains(trains, timeNow));
+      setQueryTime(queriedAt);
+    };
 
-    updateTrains()
-  }, [timeNow])
+    updateTrains();
+  }, [timeNow]);
 
   return (
-    <Card className="flex flex-col h-full min-h-0 gap-3 overflow-hidden justify-between">
-      <CardHeader className="flex flex-row items-start justify-between">
-        <CardTitle className="flex items-center gap-2">
+    <Card
+      className={cn(
+        "flex flex-col h-full min-h-0 gap-3 overflow-hidden justify-between"
+      )}
+    >
+      <CardHeader className={cn("flex flex-row items-start justify-between")}>
+        <CardTitle className={cn("flex items-center gap-2")}>
           <span>
-            <RailSymbol className="w-5 h-5 text-red-600 inline transform scale-x-150" />{" "}
+            <RailSymbol
+              className={cn(
+                "w-5 h-5 text-red-600 inline transform scale-x-150"
+              )}
+            />{" "}
             Trains
           </span>
         </CardTitle>
         <CardAction>
-          <div className="text-sm text-right">
+          <div className={cn("text-sm text-right")}>
             <LeaveTime
               nextTrainTime={sortedTrains[0]?.expectedTime ?? undefined}
             />
           </div>
         </CardAction>
       </CardHeader>
-      <CardContent className="flex-1 min-h-0 space-y-2 overflow-y-hidden">
-        <div className="grid grid-cols-3 grid-cols-[auto_auto_1fr] gap-y-1 gap-x-4 items-center">
+      <CardContent className={cn("flex-1 min-h-0 space-y-2 overflow-y-hidden")}>
+        <div
+          className={cn(
+            "grid grid-cols-3 grid-cols-[auto_auto_1fr] gap-y-1 gap-x-4 items-center"
+          )}
+        >
           {sortedTrains.map((train, index) => (
             <Fragment key={index}>
-              <div className="flex flex-col leading-none">
+              <div className={cn("flex flex-col leading-none")}>
                 <span>{getTime(train.expectedTime)}</span>
-                <span className="text-xs text-muted-foreground align-bottom">
+                <span
+                  className={cn("text-xs text-muted-foreground align-bottom")}
+                >
                   {train.expectedTime.getTime() !== train.time.getTime()
                     ? getTime(train.time)
                     : null}
