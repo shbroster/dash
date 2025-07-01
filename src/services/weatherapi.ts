@@ -31,7 +31,7 @@ const params = {
     "is_day",
   ],
   daily: ["sunrise", "sunset", "uv_index_max", "uv_index_clear_sky_max"],
-  timezone: "Europe/London",
+  timezone: "auto",
 };
 const url = "https://api.open-meteo.com/v1/forecast";
 
@@ -40,9 +40,6 @@ export async function getRoydonWeather() {
 
   // Process first location. Add a for-loop for multiple locations or weather models
   const response = responses[0];
-
-  // Attributes for timezone and location
-  const utcOffsetSeconds = response.utcOffsetSeconds();
 
   const current = response.current()!;
   const hourly = response.hourly()!;
@@ -60,25 +57,20 @@ export async function getRoydonWeather() {
           (Number(daily.timeEnd()) - Number(daily.time())) / daily.interval()
         ),
       ].map(
-        (_, i) =>
-          new Date(
-            (Number(daily.time()) + i * daily.interval() + utcOffsetSeconds) *
-              1000
-          )
+        (_, i) => new Date((Number(daily.time()) + i * daily.interval()) * 1000)
       ),
+      // Openmeteo seems to get this values wrong
       sunrise: [...Array(sunrise.valuesInt64Length())].map(
-        (_, i) =>
-          new Date((Number(sunrise.valuesInt64(i)) + utcOffsetSeconds) * 1000)
+        (_, i) => new Date((Number(sunrise.valuesInt64(i)) + 3600) * 1000)
       ),
       sunset: [...Array(sunset.valuesInt64Length())].map(
-        (_, i) =>
-          new Date((Number(sunset.valuesInt64(i)) + utcOffsetSeconds) * 1000)
+        (_, i) => new Date((Number(sunset.valuesInt64(i)) - 3600) * 1000)
       ),
       uvIndexMax: daily.variables(2)!.valuesArray()!,
       uvIndexClearSkyMax: daily.variables(3)!.valuesArray()!,
     },
     current: {
-      time: new Date((Number(current.time()) + utcOffsetSeconds) * 1000),
+      time: new Date(Number(current.time()) * 1000),
       temperature2m: current.variables(0)!.value(),
       apparentTemperature: current.variables(1)!.value(),
       windSpeed10m: current.variables(2)!.value(),
@@ -98,10 +90,7 @@ export async function getRoydonWeather() {
         ),
       ].map(
         (_, i) =>
-          new Date(
-            (Number(hourly.time()) + i * hourly.interval() + utcOffsetSeconds) *
-              1000
-          )
+          new Date((Number(hourly.time()) + i * hourly.interval()) * 1000)
       ),
       temperature2m: hourly.variables(0)!.valuesArray()!,
       apparentTemperature: hourly.variables(1)!.valuesArray()!,
@@ -117,12 +106,12 @@ export async function getRoydonWeather() {
     },
   };
 
+  console.log("Roydon weather data:", weatherData);
   return weatherData;
 }
 
-export type WeatherReasponse = Awaited<
-ReturnType<typeof getRoydonWeather>>
+export type WeatherReasponse = Awaited<ReturnType<typeof getRoydonWeather>>;
 
 export type CurrentWeather = WeatherReasponse["current"];
 export type HourlyWeather = WeatherReasponse["hourly"];
-export type DailyWeather = WeatherReasponse["daily"]
+export type DailyWeather = WeatherReasponse["daily"];

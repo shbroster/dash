@@ -8,11 +8,11 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-type ActualWeatherProps = {
+export type ActualWeatherProps = {
   icon: {
     Condition: LucideIcon;
     color: string;
-  }
+  };
   temperature: {
     current: number;
     maxTemp: number;
@@ -44,7 +44,7 @@ export function ActualWeather({
         <div className="flex justify-center">
           <CurrentTemperature temperature={temperature} />
         </div>
-          
+
         {/* Indicators */}
         <div className="flex items-center justify-center gap-0.5">
           <Umbrella

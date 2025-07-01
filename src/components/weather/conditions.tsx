@@ -102,7 +102,7 @@ export const getAvgWeatherConditions = (weather: HourlyWeather) => {
   console.log(
     `Average weather conditions ${weather.time[0].toLocaleDateString()}`,
     conditions,
-    data,
+    data
   );
   return conditions;
 };
@@ -126,7 +126,11 @@ function getIconFromConditions({
   if (conditions.includes("snow")) {
     return cloudy || !isDay ? CloudSnow : SunSnow;
   }
-  if (windy && cloudy && (conditions.includes("heavy-rain") || conditions.includes("rain")))
+  if (
+    windy &&
+    cloudy &&
+    (conditions.includes("heavy-rain") || conditions.includes("rain"))
+  )
     return CloudRainWind;
 
   if (rainy) {
@@ -188,4 +192,4 @@ export const getColor = (icon: LucideIcon) => {
     default:
       return "text-gray-500";
   }
-}
+};

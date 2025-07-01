@@ -1,17 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sunrise, Sunset, Rainbow, Sun } from "lucide-react";
+import { Sunrise, Sunset, Rainbow } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getRoydonWeather } from "@/services/weatherapi";
 import { useTickProvider } from "@/providers/tickprovider";
 import { CardAction, CardFooter } from "../ui/card";
-import { type HourlyWeather, type CurrentWeather } from "@/services/weatherapi";
-import {
-  WeeklyForecast,
-  type Forecast,
-  type WeeklyForecastProps,
-} from "./forecast";
+import { type HourlyWeather } from "@/services/weatherapi";
+import { WeeklyForecast, type Forecast } from "./forecast";
 import { ActualWeather, type ActualWeatherProps } from "./actual";
-import { avgWeatherIcon, currentWeatherIcon, getAvgWeatherConditions, getCurrentWeatherConditions } from "./conditions";
+import {
+  avgWeatherIcon,
+  currentWeatherIcon,
+  getAvgWeatherConditions,
+  getCurrentWeatherConditions,
+} from "./conditions";
 import type { WeatherReasponse } from "../../services/weatherapi";
 
 function formatTime(date: Date): string {
@@ -22,12 +23,36 @@ function formatTime(date: Date): string {
   });
 }
 
-type Hours = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23;
+type Hours =
+  | 0
+  | 1
+  | 2
+  | 3
+  | 4
+  | 5
+  | 6
+  | 7
+  | 8
+  | 9
+  | 10
+  | 11
+  | 12
+  | 13
+  | 14
+  | 15
+  | 16
+  | 17
+  | 18
+  | 19
+  | 20
+  | 21
+  | 22
+  | 23;
 
 const splitHourlyByDay = (
   data: HourlyWeather,
-  dayStart: Hours  = 0 ,
-  dayEnd: Hours = 23,
+  dayStart: Hours = 0,
+  dayEnd: Hours = 23
 ): HourlyWeather[] => {
   const splitData: HourlyWeather[] = [];
   const chunkSize = 24; // Split into 24-hour chunks
@@ -108,7 +133,9 @@ const getActualWeather = (
         timeNow.getDate() < lightStarts.getDate() ||
         timeNow.getTime() + fiftyMinuteWalk > darkStarts.getTime(),
       fogInNextHour: getAvgWeatherConditions(hourlyToday).includes("fog"),
-      windInNextHour: currentCondition.includes("wind") || currentCondition.includes("strong-wind"),
+      windInNextHour:
+        currentCondition.includes("wind") ||
+        currentCondition.includes("strong-wind"),
     },
   };
 };
@@ -150,8 +177,8 @@ export default function WeatherCard() {
   const actualWeather = getActualWeather(timeNow, weatherData);
 
   return (
-    <Card>
-      <CardHeader className="pb-0">
+    <Card className="overflow-hidden">
+      <CardHeader className="flex flex-row items-start justify-between -mt-1.5">
         <CardTitle className="text-lg flex items-center gap-2">
           <Rainbow className="h-5 w-5" />
           Weather
