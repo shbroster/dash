@@ -178,7 +178,7 @@ export default function WeatherCard() {
 
   return (
     <Card className="overflow-hidden">
-      <CardHeader className="flex flex-row items-start justify-between">
+      <CardHeader className="flex flex-row items-start justify-between -mt-1.5">
         <CardTitle className="text-lg flex items-center gap-2">
           <Rainbow className="h-5 w-5" />
           Weather
