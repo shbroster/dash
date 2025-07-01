@@ -34,15 +34,17 @@ export function ActualWeather({
 }: ActualWeatherProps) {
   return (
     <div className="w-full">
-      <div className="grid grid-cols-2 grid-rows-2">
+      <div className="grid grid-cols-[1fr_1.5fr] grid-rows-2">
         {/* Weather icon */}
         <div className="flex items-center justify-center row-span-2">
           <icon.Condition className={`h-23 w-23 ${icon.color}`} />
         </div>
 
         {/* Temperature */}
-        <CurrentTemperature temperature={temperature} />
-
+        <div className="flex justify-center">
+          <CurrentTemperature temperature={temperature} />
+        </div>
+          
         {/* Indicators */}
         <div className="flex items-center justify-center gap-0.5">
           <Umbrella

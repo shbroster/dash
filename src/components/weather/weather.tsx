@@ -11,7 +11,7 @@ import {
   type WeeklyForecastProps,
 } from "./forecast";
 import { ActualWeather, type ActualWeatherProps } from "./actual";
-import { avgWeatherIcon, currentWeatherIcon } from "./weathericon";
+import { avgWeatherIcon, currentWeatherIcon, getAvgWeatherConditions, getCurrentWeatherConditions } from "./conditions";
 import type { WeatherReasponse } from "../../services/weatherapi";
 
 function formatTime(date: Date): string {
@@ -22,16 +22,17 @@ function formatTime(date: Date): string {
   });
 }
 
-const splitHourly = (
+type Hours = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23;
+
+const splitHourlyByDay = (
   data: HourlyWeather,
-  dayStart = 7,
-  dayEnd = 22
+  dayStart: Hours  = 0 ,
+  dayEnd: Hours = 23,
 ): HourlyWeather[] => {
   const splitData: HourlyWeather[] = [];
   const chunkSize = 24; // Split into 24-hour chunks
 
   for (let i = 0; i < data.time.length; i += chunkSize) {
-    // Only look at data between 06:00 and 21:00
     const chunk: HourlyWeather = {
       time: data.time.slice(i + dayStart, i + dayEnd),
       temperature2m: data.temperature2m.slice(i + dayStart, i + dayEnd),
@@ -53,7 +54,7 @@ const splitHourly = (
 };
 
 const getForecast = (hourlyData: HourlyWeather): Forecast[] => {
-  return splitHourly(hourlyData, 0, 23).map((dailyChunks) => ({
+  return splitHourlyByDay(hourlyData, 0, 23).map((dailyChunks) => ({
     date: dailyChunks.time[0],
     maxTemp: Math.max(...dailyChunks.temperature2m),
     minTemp: Math.min(...dailyChunks.temperature2m),
@@ -61,13 +62,17 @@ const getForecast = (hourlyData: HourlyWeather): Forecast[] => {
   }));
 };
 
-const getActualWeather = (weather: WeatherReasponse): ActualWeatherProps => {
-  const { current, hourly } = weather;
+const getActualWeather = (
+  timeNow: Date,
+  weather: WeatherReasponse
+): ActualWeatherProps => {
+  const { current, hourly, daily } = weather;
+  const hourlyToday = splitHourlyByDay(hourly)[0]; // Get today's hourly data
 
   // Calculate temperature trend (compare with 1 hour ago)
   const currentTemp = current.temperature2m;
-  const oneHourAgoIndex = hourly.time.findIndex(
-    (time) => time.getTime() <= current.time.getTime() - 3600000
+  const oneHourAgoIndex = hourlyToday.time.findIndex(
+    (time: Date) => time.getHours() === current.time.getHours() - 1
   );
   const oneHourAgoTemp =
     oneHourAgoIndex >= 0 ? hourly.temperature2m[oneHourAgoIndex] : currentTemp;
@@ -78,31 +83,17 @@ const getActualWeather = (weather: WeatherReasponse): ActualWeatherProps => {
       ? "falling"
       : "steady";
 
-  // Find min/max for the day
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  const minTemp = Math.min(...hourlyToday.temperature2m);
+  const maxTemp = Math.max(...hourlyToday.temperature2m);
 
-  const todayTemps = Array.from(hourly.temperature2m).filter((_, i) => {
-    const time = hourly.time[i];
-    return time >= today && time < tomorrow;
-  });
+  const darkStarts = daily.sunset[0];
+  darkStarts.setMinutes(darkStarts.getMinutes() + 30); // Assume dark starts 30 mins after sunset
+  const lightStarts = daily.sunrise[0];
+  lightStarts.setMinutes(lightStarts.getMinutes() - 30); // Assume light starts 30 mins before sunrise
+  const fiftyMinuteWalk = 50 * 60 * 1000; // 50 minutes in milliseconds
 
-  const minTemp = Math.min(...todayTemps);
-  const maxTemp = Math.max(...todayTemps);
+  const currentCondition = getCurrentWeatherConditions(current);
 
-  // Check if it will rain in the next hour
-  const nextHourIndex = hourly.time.findIndex(
-    (time) => time.getTime() > current.time.getTime()
-  );
-  const willRain =
-    nextHourIndex >= 0 &&
-    (hourly.rain[nextHourIndex] > 0 ||
-      (hourly.rain.length > nextHourIndex + 1 &&
-        hourly.rain[nextHourIndex + 1] > 0));
-
-  // TODO FIX ME
   return {
     icon: currentWeatherIcon({ weather: current }),
     temperature: {
@@ -112,10 +103,12 @@ const getActualWeather = (weather: WeatherReasponse): ActualWeatherProps => {
       rising: tempTrend === "rising",
     },
     indicators: {
-      rainInNextHour: willRain,
-      darkInNextHour: false, // Placeholder, implement actual logic if needed
-      fogInNextHour: false, // Placeholder, implement actual logic if needed
-      windInNextHour: false, // Placeholder, implement actual logic if needed
+      rainInNextHour: current.precipitation > 0.1, // Precupitation in the last hour; counts rain, showers, snowfall
+      darkInNextHour:
+        timeNow.getDate() < lightStarts.getDate() ||
+        timeNow.getTime() + fiftyMinuteWalk > darkStarts.getTime(),
+      fogInNextHour: getAvgWeatherConditions(hourlyToday).includes("fog"),
+      windInNextHour: currentCondition.includes("wind") || currentCondition.includes("strong-wind"),
     },
   };
 };
@@ -154,13 +147,7 @@ export default function WeatherCard() {
     );
 
   const forecast = getForecast(weatherData.hourly);
-  const actualWeather = getActualWeather(weatherData);
-
-  console.log(
-    "Sunrise/Sunset times:",
-    weatherData.daily,
-    weatherData.hourly.sunset
-  );
+  const actualWeather = getActualWeather(timeNow, weatherData);
 
   return (
     <Card>
