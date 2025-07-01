@@ -1,26 +1,11 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "./ui/button";
-import { CalendarDays, ListTodo, Maximize2, Sun } from "lucide-react";
+import { ListTodo, Maximize2 } from "lucide-react";
 import { useState } from "react";
-import TrainsCard from "./trains";
+import TrainsCard from "./trains/trains";
 import { cn } from "../lib/utils";
-import WeatherCard from "./weather";
-import { CardAction } from "./ui/card";
-
-const formatDate = (date: Date) => {
-  return date.toLocaleDateString("en-UK", {
-    weekday: "short",
-    day: "numeric",
-  });
-};
-
-function formatTime(date: Date): string {
-  return date.toLocaleString("en-UK", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-}
+import WeatherCard from "./weather/weather";
+import { CalendarCard } from "./calender/calendar";
 
 export default function HomeDashboard() {
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -58,17 +43,7 @@ export default function HomeDashboard() {
       </Button>
 
       {/* Calendar Section */}
-      <Card className={cn("flex flex-col h-full")}>
-        <CardHeader>
-          <CardTitle className={cn("flex items-center gap-2")}>
-            <CalendarDays className={cn("w-5 h-5")} /> Calendar
-          </CardTitle>
-          <CardAction>
-          {formatTime(new Date())} {formatDate(new Date())}
-          </CardAction>
-        </CardHeader>
-        <CardContent></CardContent>
-      </Card>
+      <CalendarCard />
 
       {/* Trains Section */}
       <TrainsCard />

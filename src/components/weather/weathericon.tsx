@@ -14,26 +14,29 @@ import {
   CloudMoonRain,
   Moon,
 } from "lucide-react";
-import { type CurrentWeather, type HourlyWeather } from "../services/weatherapi";
+import {
+  type CurrentWeather,
+  type HourlyWeather,
+} from "../../services/weatherapi";
 
 type BaseWeatherProps = {
   size?: number;
   className?: string;
-}
+};
 
-type ConditionWeatherIconProps  = BaseWeatherProps & {
+type ConditionWeatherIconProps = BaseWeatherProps & {
   conditions: WeatherCondition[];
   isDay?: boolean;
-}
+};
 
 type CurrentWeatherIconProp = BaseWeatherProps & {
-  weather: CurrentWeather
-  hourlyWeather: HourlyWeather
-}
+  weather: CurrentWeather;
+  hourlyWeather: HourlyWeather;
+};
 
 type AvgWeatherIconProp = BaseWeatherProps & {
-  weather: HourlyWeather
-}
+  weather: HourlyWeather;
+};
 
 type WeatherCondition =
   | "snow"
@@ -52,14 +55,8 @@ type WeatherCondition =
 
 // Determine the weather condition
 const getCurrentWeatherConditions = (weather: CurrentWeather) => {
-  const {
-    rain,
-    showers,
-    snowfall,
-    cloudCover,
-    windSpeed10m,
-    windGusts10m,
-  } = weather;
+  const { rain, showers, snowfall, cloudCover, windSpeed10m, windGusts10m } =
+    weather;
 
   const conditions: Array<WeatherCondition> = [];
   if (snowfall > 0) conditions.concat("snow");
@@ -82,19 +79,25 @@ const getCurrentWeatherConditions = (weather: CurrentWeather) => {
   )
     conditions.concat("wind");
   if (windSpeed10m > 40 || windGusts10m > 50) conditions.concat("strong-wind");
-  
+
   console.log("Current weather conditions:", conditions, weather);
   return conditions;
 };
 
 const getAvgWeatherConditions = (weather: HourlyWeather) => {
-  const rain = weather.rain.reduce((a, b) => a + b, 0) ;
-  const showers = weather.showers.reduce((a, b) => a + b, 0) ;
-  const snowfall = weather.snowfall.reduce((a, b) => a + b, 0) ;
-  const cloudCover = weather.cloudCover.reduce((a, b) => a + b, 0) / weather.cloudCover.length;
-  const windSpeed10m = weather.windSpeed10m.reduce((a, b) => a + b, 0) / weather.windSpeed10m.length;
-  const windGusts10m = weather.windGusts10m.reduce((a, b) => a + b, 0) / weather.windGusts10m.length;
-  const visibility = weather.visibility.reduce((a, b) => a + b, 0) / weather.visibility.length;
+  const rain = weather.rain.reduce((a, b) => a + b, 0);
+  const showers = weather.showers.reduce((a, b) => a + b, 0);
+  const snowfall = weather.snowfall.reduce((a, b) => a + b, 0);
+  const cloudCover =
+    weather.cloudCover.reduce((a, b) => a + b, 0) / weather.cloudCover.length;
+  const windSpeed10m =
+    weather.windSpeed10m.reduce((a, b) => a + b, 0) /
+    weather.windSpeed10m.length;
+  const windGusts10m =
+    weather.windGusts10m.reduce((a, b) => a + b, 0) /
+    weather.windGusts10m.length;
+  const visibility =
+    weather.visibility.reduce((a, b) => a + b, 0) / weather.visibility.length;
 
   const conditions: Array<WeatherCondition> = [];
   if (snowfall > 0) conditions.concat("snow");
@@ -119,8 +122,21 @@ const getAvgWeatherConditions = (weather: HourlyWeather) => {
   if (windSpeed10m > 40 || windGusts10m > 50) conditions.concat("strong-wind");
   if (visibility < 1000) conditions.concat("fog");
 
-  const data = { rain, showers, snowfall, cloudCover, windSpeed10m, windGusts10m, visibility };
-  console.log(`Average weather conditions ${weather.time[0].toLocaleDateString()}`, conditions, data, weather);
+  const data = {
+    rain,
+    showers,
+    snowfall,
+    cloudCover,
+    windSpeed10m,
+    windGusts10m,
+    visibility,
+  };
+  console.log(
+    `Average weather conditions ${weather.time[0].toLocaleDateString()}`,
+    conditions,
+    data,
+    weather
+  );
   return conditions;
 };
 
