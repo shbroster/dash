@@ -1,21 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  CloudRain,
-  ArrowUp,
-  ArrowDown,
-  Thermometer,
-  Wind,
-  Sunrise,
-  Sunset,
-  Rainbow,
-} from "lucide-react";
+import { Sunrise, Sunset, Rainbow, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getRoydonWeather } from "@/services/weatherapi";
 import { useTickProvider } from "@/providers/tickprovider";
 import { CardAction, CardFooter } from "../ui/card";
-import type { CurrentWeather, HourlyWeather } from "../../services/weatherapi";
-import { AvgWeatherIcon } from "./weathericon";
-import { LargeForecast, WeeklyForecast } from "./forecast";
+import { type HourlyWeather, type CurrentWeather } from "@/services/weatherapi";
+import { WeeklyForecast } from "./forecast";
+import { ActualWeather } from "./actual";
 
 interface WeatherData {
   current: CurrentWeather;
@@ -138,24 +129,29 @@ export default function WeatherCard() {
     (hourly.rain[nextHourIndex] > 0 ||
       (hourly.rain.length > nextHourIndex + 1 &&
         hourly.rain[nextHourIndex + 1] > 0));
-
+  
   const forecast = splitHourly(hourly, 0, 23).map((chunk) => ({
     date: chunk.time[0],
     maxTemp: Math.max(...chunk.temperature2m),
     minTemp: Math.min(...chunk.temperature2m),
-    icon: <AvgWeatherIcon weather={hourly} size={26} />,
+    hourly: chunk,
   }));
 
   // TODO FIX ME
-  const largeForecast = {
-    date: timeNow,
-    maxTemp: forecast[0].maxTemp,
-    minTemp: forecast[0].minTemp,
-    icon: forecast[0].icon,
-    temperature: currentTemp,
-    termperatureRising: false,
-    sunrise: new Date(),
-    sunset: new Date(),
+  const actualWeather = {
+    Icon: Sun,
+    temperature: {
+      current: current.temperature2m,
+      maxTemp: maxTemp,
+      minTemp: minTemp,
+      rising: tempTrend === "rising",
+    },
+    indicators: {
+      rainInNextHour: willRain,
+      darkInNextHour: false, // Placeholder, implement actual logic if needed
+      fogInNextHour: false, // Placeholder, implement actual logic if needed
+      windInNextHour: false, // Placeholder, implement actual logic if needed
+    },
   };
 
   return (
@@ -173,11 +169,7 @@ export default function WeatherCard() {
         </CardAction>
       </CardHeader>
       <CardContent className="pt-1 space-y-1">
-        <div className="flex items-center justify-between">
-          <LargeForecast forecast={largeForecast} />
-        </div>
-
-        <div className="flex items-center justify-between text-sm"></div>
+        <ActualWeather {...actualWeather} />
       </CardContent>
       <CardFooter>
         <WeeklyForecast forecasts={forecast} />
@@ -189,9 +181,13 @@ export default function WeatherCard() {
 function WeatherCardSkeleton() {
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg">Weather</CardTitle>
+      <CardHeader className="pb-0">
+        <CardTitle className="text-lg flex items-center gap-2">
+          <Rainbow className="h-5 w-5" />
+          Weather
+        </CardTitle>
       </CardHeader>
+
       <CardContent className="space-y-2">
         <div className="h-8 bg-muted rounded w-3/4 animate-pulse" />
         <div className="h-4 bg-muted rounded w-full animate-pulse" />

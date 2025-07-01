@@ -53,6 +53,22 @@ type WeatherCondition =
   | "strong-wind"
   | "fog";
 
+type WeatherIcon = 
+  | typeof Sun
+  | typeof Cloud
+  | typeof CloudRain
+  | typeof CloudSnow
+  | typeof CloudDrizzle
+  | typeof CloudFog
+  | typeof Wind
+  | typeof CloudSun
+  | typeof CloudSunRain
+  | typeof CloudRainWind
+  | typeof SunSnow
+  | typeof CloudMoon
+  | typeof CloudMoonRain
+  | typeof Moon;
+
 // Determine the weather condition
 const getCurrentWeatherConditions = (weather: CurrentWeather) => {
   const { rain, showers, snowfall, cloudCover, windSpeed10m, windGusts10m } =
