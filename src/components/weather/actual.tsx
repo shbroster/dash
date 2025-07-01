@@ -8,7 +8,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-type ActualWeatherProps = {
+export type ActualWeatherProps = {
   icon: {
     Condition: LucideIcon;
     color: string;

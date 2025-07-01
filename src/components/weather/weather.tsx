@@ -1,14 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sunrise, Sunset, Rainbow, Sun } from "lucide-react";
+import { Sunrise, Sunset, Rainbow } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getRoydonWeather } from "@/services/weatherapi";
 import { useTickProvider } from "@/providers/tickprovider";
 import { CardAction, CardFooter } from "../ui/card";
-import { type HourlyWeather, type CurrentWeather } from "@/services/weatherapi";
+import { type HourlyWeather } from "@/services/weatherapi";
 import {
   WeeklyForecast,
   type Forecast,
-  type WeeklyForecastProps,
 } from "./forecast";
 import { ActualWeather, type ActualWeatherProps } from "./actual";
 import { avgWeatherIcon, currentWeatherIcon, getAvgWeatherConditions, getCurrentWeatherConditions } from "./conditions";
@@ -150,8 +149,8 @@ export default function WeatherCard() {
   const actualWeather = getActualWeather(timeNow, weatherData);
 
   return (
-    <Card>
-      <CardHeader className="pb-0">
+    <Card className="overflow-hidden">
+      <CardHeader className="flex flex-row items-start justify-between">
         <CardTitle className="text-lg flex items-center gap-2">
           <Rainbow className="h-5 w-5" />
           Weather
