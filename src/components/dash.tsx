@@ -4,6 +4,23 @@ import { CalendarDays, ListTodo, Maximize2, Sun } from "lucide-react";
 import { useState } from "react";
 import TrainsCard from "./trains";
 import { cn } from "../lib/utils";
+import WeatherCard from "./weather";
+import { CardAction } from "./ui/card";
+
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString("en-UK", {
+    weekday: "short",
+    day: "numeric",
+  });
+};
+
+function formatTime(date: Date): string {
+  return date.toLocaleString("en-UK", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
 
 export default function HomeDashboard() {
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -46,6 +63,9 @@ export default function HomeDashboard() {
           <CardTitle className={cn("flex items-center gap-2")}>
             <CalendarDays className={cn("w-5 h-5")} /> Calendar
           </CardTitle>
+          <CardAction>
+          {formatTime(new Date())} {formatDate(new Date())}
+          </CardAction>
         </CardHeader>
         <CardContent></CardContent>
       </Card>
@@ -54,21 +74,7 @@ export default function HomeDashboard() {
       <TrainsCard />
 
       {/* Weather Section */}
-      <Card className={cn("flex flex-col h-full")}>
-        <CardHeader>
-          <CardTitle className={cn("flex items-center gap-2")}>
-            <Sun className={cn("w-5 h-5")} /> Weather
-          </CardTitle>
-        </CardHeader>
-        <CardContent className={cn("space-y-2")}>
-          {/* <div className="text-lg font-medium">15°C, Partly Cloudy</div>
-          <div className="flex justify-between text-sm text-muted-foreground">
-            <span>High: 18°C</span>
-            <span>Low: 10°C</span>
-          </div>
-          <div>Humidity: 65%</div> */}
-        </CardContent>
-      </Card>
+      <WeatherCard />
 
       {/* To-Do Section */}
       <Card className={cn("flex flex-col h-full")}>
