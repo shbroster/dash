@@ -1,34 +1,31 @@
-import { ArrowDown, ArrowUp } from "lucide-react";
-import type { HourlyWeather } from "../../services/weatherapi";
-import { AvgWeatherIcon } from "./weathericon";
+import { ArrowDown, ArrowUp, type LucideIcon } from "lucide-react";
 
-type SmallForecast = {
+export type Forecast = {
   date: Date;
   maxTemp: number;
   minTemp: number;
-  hourly: HourlyWeather;
+  Icon: LucideIcon;
 };
 
-type WeeklyForecastProps = {
-  forecasts: SmallForecast[];
+export type WeeklyForecastProps = {
+  forecasts: Forecast[];
 };
 
 export function WeeklyForecast({ forecasts: forecast }: WeeklyForecastProps) {
   return (
     <div className="flex space-x-4 overflow-x-auto py-2 px-1 -mx-1">
       {forecast.slice(0, 4).map((day, idx) => (
-        <SmallForecast key={idx} idx={idx.toString()} forecast={day} />
+        <Forecast key={idx} idx={idx.toString()} forecast={day} />
       ))}
     </div>
   );
 }
 
-type SmallForecastProps = {
+type ForecastProps = {
   idx: string;
-  forecast: SmallForecast;
+  forecast: Forecast;
 };
-
-export function SmallForecast({ forecast, idx }: SmallForecastProps) {
+function Forecast({ forecast, idx }: ForecastProps) {
   // Format date to be more compact (e.g., "Mon 1")
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("en-UK", {
@@ -37,7 +34,7 @@ export function SmallForecast({ forecast, idx }: SmallForecastProps) {
     });
   };
 
-  const { date, maxTemp, minTemp, hourly } = forecast;
+  const { date, maxTemp, minTemp, Icon } = forecast;
 
   return (
     <div key={idx} className="flex flex-col items-center min-w-[60px]">
@@ -46,7 +43,7 @@ export function SmallForecast({ forecast, idx }: SmallForecastProps) {
       <div className="grid grid-cols-[auto_auto] grid-rows-2 items-center w-full">
         {/* Icon - spans both rows in first column */}
         <div className="row-span-2">
-          <AvgWeatherIcon weather={hourly} size={26} />
+          <Icon size={26} />
         </div>
         {/* Max temp - top right */}
         <span className="text-xs font-medium flex items-centre">

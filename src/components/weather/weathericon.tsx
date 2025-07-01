@@ -13,30 +13,12 @@ import {
   CloudMoon,
   CloudMoonRain,
   Moon,
+  type LucideIcon,
 } from "lucide-react";
 import {
   type CurrentWeather,
   type HourlyWeather,
 } from "../../services/weatherapi";
-
-type BaseWeatherProps = {
-  size?: number;
-  className?: string;
-};
-
-type ConditionWeatherIconProps = BaseWeatherProps & {
-  conditions: WeatherCondition[];
-  isDay?: boolean;
-};
-
-type CurrentWeatherIconProp = BaseWeatherProps & {
-  weather: CurrentWeather;
-  hourlyWeather: HourlyWeather;
-};
-
-type AvgWeatherIconProp = BaseWeatherProps & {
-  weather: HourlyWeather;
-};
 
 type WeatherCondition =
   | "snow"
@@ -52,22 +34,6 @@ type WeatherCondition =
   | "light-wind"
   | "strong-wind"
   | "fog";
-
-type WeatherIcon = 
-  | typeof Sun
-  | typeof Cloud
-  | typeof CloudRain
-  | typeof CloudSnow
-  | typeof CloudDrizzle
-  | typeof CloudFog
-  | typeof Wind
-  | typeof CloudSun
-  | typeof CloudSunRain
-  | typeof CloudRainWind
-  | typeof SunSnow
-  | typeof CloudMoon
-  | typeof CloudMoonRain
-  | typeof Moon;
 
 // Determine the weather condition
 const getCurrentWeatherConditions = (weather: CurrentWeather) => {
@@ -156,14 +122,13 @@ const getAvgWeatherConditions = (weather: HourlyWeather) => {
   return conditions;
 };
 
-export function ConditionWeatherIcon({
+function getIconFromConditions({
   conditions,
   isDay,
-  size = 24,
-  className = "",
-}: ConditionWeatherIconProps) {
-  const iconProps = { size, className };
-
+}: {
+  conditions: WeatherCondition[];
+  isDay: boolean;
+}): LucideIcon {
   const cloudy =
     conditions.includes("cloudy") || conditions.includes("partly-cloudy");
   const rainy =
@@ -175,77 +140,46 @@ export function ConditionWeatherIcon({
     conditions.includes("wind") || conditions.includes("strong-wind");
 
   if (conditions.includes("snow")) {
-    return cloudy || !isDay ? (
-      <CloudSnow {...iconProps} />
-    ) : (
-      <SunSnow {...iconProps} />
-    );
+    return cloudy || !isDay ? CloudSnow : SunSnow;
   }
-  if (windy && cloudy && conditions.includes("heavy-rain")) {
-    return <CloudRainWind {...iconProps} />;
-  }
+  if (windy && cloudy && conditions.includes("heavy-rain"))
+    return CloudRainWind;
+
   if (rainy) {
-    return conditions.includes("heavy-rain") ? (
-      <CloudRain {...iconProps} />
-    ) : conditions.includes("heavy-showers") ||
-      conditions.includes("showers") ? (
-      isDay ? (
-        <CloudSunRain {...iconProps} />
-      ) : (
-        <CloudMoonRain {...iconProps} />
-      )
-    ) : (
-      <CloudDrizzle {...iconProps} />
-    );
+    return conditions.includes("heavy-rain")
+      ? CloudRain
+      : conditions.includes("heavy-showers") || conditions.includes("showers")
+      ? isDay
+        ? CloudSunRain
+        : CloudMoonRain
+      : CloudDrizzle;
   }
   if (conditions.includes("fog")) {
-    return <CloudFog {...iconProps} />;
+    return CloudFog;
   }
   if (windy) {
-    return <Wind {...iconProps} />;
+    return Wind;
   }
   if (cloudy) {
-    return !conditions.includes("partly-cloudy") ? (
-      <Cloud {...iconProps} />
-    ) : isDay ? (
-      <CloudSun {...iconProps} />
-    ) : (
-      <CloudMoon {...iconProps} />
-    );
+    return !conditions.includes("partly-cloudy")
+      ? Cloud
+      : isDay
+      ? CloudSun
+      : CloudMoon;
   }
   // TODO: Sun size based on temp
-  return isDay ? <Sun {...iconProps} /> : <Moon {...iconProps} />;
+  return isDay ? Sun : Moon;
 }
 
-export function CurrentWeatherIcon({
-  weather,
-  hourlyWeather,
-  size = 24,
-  className = "",
-}: CurrentWeatherIconProp) {
+export function currentWeatherIcon({ weather }: { weather: CurrentWeather }) {
   const conditions = getCurrentWeatherConditions(weather);
-  return (
-    <ConditionWeatherIcon
-      conditions={conditions}
-      isDay={weather.isDay}
-      size={size}
-      className={className}
-    />
-  );
+  return {
+    Condition: getIconFromConditions({ conditions, isDay: weather.isDay }),
+    color: "text-yellow-500",
+  };
 }
 
-export function AvgWeatherIcon({
-  weather,
-  size = 24,
-  className = "",
-}: AvgWeatherIconProp) {
+export function avgWeatherIcon({ weather }: { weather: HourlyWeather }) {
   const conditions = getAvgWeatherConditions(weather);
-  return (
-    <ConditionWeatherIcon
-      conditions={conditions}
-      isDay={true} // Average doesn't have day/night distinction
-      size={size}
-      className={className}
-    />
-  );
+  return getIconFromConditions({ conditions, isDay: true });
 }

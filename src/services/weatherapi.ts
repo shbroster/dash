@@ -30,7 +30,7 @@ const params = {
     "wind_direction_10m",
     "is_day",
   ],
-  daily: ["uv_index_max", "uv_index_clear_sky_max"],
+  daily: ["sunrise", "sunset", "uv_index_max", "uv_index_clear_sky_max"],
   timezone: "Europe/London",
 };
 const url = "https://api.open-meteo.com/v1/forecast";
@@ -47,8 +47,36 @@ export async function getRoydonWeather() {
   const current = response.current()!;
   const hourly = response.hourly()!;
 
+  const daily = response.daily()!;
+  const sunrise = daily.variables(0)!;
+  const sunset = daily.variables(1)!;
+  console.log("Roydon weather data fetched at", sunrise, sunset);
+
   // Note: The order of weather variables in the URL query and the indices below need to match!
   const weatherData = {
+    daily: {
+      time: [
+        ...Array(
+          (Number(daily.timeEnd()) - Number(daily.time())) / daily.interval()
+        ),
+      ].map(
+        (_, i) =>
+          new Date(
+            (Number(daily.time()) + i * daily.interval() + utcOffsetSeconds) *
+              1000
+          )
+      ),
+      sunrise: [...Array(sunrise.valuesInt64Length())].map(
+        (_, i) =>
+          new Date((Number(sunrise.valuesInt64(i)) + utcOffsetSeconds) * 1000)
+      ),
+      sunset: [...Array(sunset.valuesInt64Length())].map(
+        (_, i) =>
+          new Date((Number(sunset.valuesInt64(i)) + utcOffsetSeconds) * 1000)
+      ),
+      uvIndexMax: daily.variables(2)!.valuesArray()!,
+      uvIndexClearSkyMax: daily.variables(3)!.valuesArray()!,
+    },
     current: {
       time: new Date((Number(current.time()) + utcOffsetSeconds) * 1000),
       temperature2m: current.variables(0)!.value(),
@@ -92,9 +120,9 @@ export async function getRoydonWeather() {
   return weatherData;
 }
 
-export type CurrentWeather = Awaited<
-  ReturnType<typeof getRoydonWeather>
->["current"];
-export type HourlyWeather = Awaited<
-  ReturnType<typeof getRoydonWeather>
->["hourly"];
+export type WeatherReasponse = Awaited<
+ReturnType<typeof getRoydonWeather>>
+
+export type CurrentWeather = WeatherReasponse["current"];
+export type HourlyWeather = WeatherReasponse["hourly"];
+export type DailyWeather = WeatherReasponse["daily"]

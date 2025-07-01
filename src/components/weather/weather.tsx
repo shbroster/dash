@@ -5,12 +5,21 @@ import { getRoydonWeather } from "@/services/weatherapi";
 import { useTickProvider } from "@/providers/tickprovider";
 import { CardAction, CardFooter } from "../ui/card";
 import { type HourlyWeather, type CurrentWeather } from "@/services/weatherapi";
-import { WeeklyForecast } from "./forecast";
-import { ActualWeather } from "./actual";
+import {
+  WeeklyForecast,
+  type Forecast,
+  type WeeklyForecastProps,
+} from "./forecast";
+import { ActualWeather, type ActualWeatherProps } from "./actual";
+import { avgWeatherIcon, currentWeatherIcon } from "./weathericon";
+import type { WeatherReasponse } from "../../services/weatherapi";
 
-interface WeatherData {
-  current: CurrentWeather;
-  hourly: HourlyWeather;
+function formatTime(date: Date): string {
+  return date.toLocaleString("en-UK", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
 }
 
 const splitHourly = (
@@ -43,54 +52,17 @@ const splitHourly = (
   return splitData;
 };
 
-export default function WeatherCard() {
-  const { everyMinute: timeNow } = useTickProvider();
-  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
-  // TODO: fix intermittent loading screens
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const getForecast = (hourlyData: HourlyWeather): Forecast[] => {
+  return splitHourly(hourlyData, 0, 23).map((dailyChunks) => ({
+    date: dailyChunks.time[0],
+    maxTemp: Math.max(...dailyChunks.temperature2m),
+    minTemp: Math.min(...dailyChunks.temperature2m),
+    Icon: avgWeatherIcon({ weather: dailyChunks }),
+  }));
+};
 
-  useEffect(() => {
-    const fetchWeather = async () => {
-      try {
-        setLoading(true);
-        const data = await getRoydonWeather();
-        setWeatherData(data as unknown as WeatherData);
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching weather data:", err);
-        setError("Failed to load weather data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchWeather();
-    // Refresh every 10 minutes
-    const interval = setInterval(fetchWeather, 10 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [timeNow]);
-
-  if (loading && !weatherData) {
-    return <WeatherCardSkeleton />;
-  }
-
-  if (error || !weatherData) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Weather</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            {error || "No weather data available"}
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const { current, hourly } = weatherData;
+const getActualWeather = (weather: WeatherReasponse): ActualWeatherProps => {
+  const { current, hourly } = weather;
 
   // Calculate temperature trend (compare with 1 hour ago)
   const currentTemp = current.temperature2m;
@@ -129,17 +101,10 @@ export default function WeatherCard() {
     (hourly.rain[nextHourIndex] > 0 ||
       (hourly.rain.length > nextHourIndex + 1 &&
         hourly.rain[nextHourIndex + 1] > 0));
-  
-  const forecast = splitHourly(hourly, 0, 23).map((chunk) => ({
-    date: chunk.time[0],
-    maxTemp: Math.max(...chunk.temperature2m),
-    minTemp: Math.min(...chunk.temperature2m),
-    hourly: chunk,
-  }));
 
   // TODO FIX ME
-  const actualWeather = {
-    Icon: Sun,
+  return {
+    icon: currentWeatherIcon({ weather: current }),
     temperature: {
       current: current.temperature2m,
       maxTemp: maxTemp,
@@ -153,6 +118,49 @@ export default function WeatherCard() {
       windInNextHour: false, // Placeholder, implement actual logic if needed
     },
   };
+};
+
+export default function WeatherCard() {
+  const { everyMinute: timeNow } = useTickProvider();
+  const [weatherData, setWeatherData] = useState<WeatherReasponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        setLoading(true);
+        const data = await getRoydonWeather();
+        setWeatherData(data as unknown as WeatherReasponse);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching weather data:", err);
+        setError("Failed to load weather data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWeather();
+    // Refresh every 10 minutes
+    const interval = setInterval(fetchWeather, 10 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [timeNow]);
+
+  if (loading && !weatherData) return <WeatherCardSkeleton />;
+  if (error || !weatherData)
+    return (
+      <WeatherCardError message={error || "Failed to load weather data"} />
+    );
+
+  const forecast = getForecast(weatherData.hourly);
+  const actualWeather = getActualWeather(weatherData);
+
+  console.log(
+    "Sunrise/Sunset times:",
+    weatherData.daily,
+    weatherData.hourly.sunset
+  );
 
   return (
     <Card>
@@ -163,8 +171,10 @@ export default function WeatherCard() {
         </CardTitle>
         <CardAction>
           <div className="text-muted-foreground flex gap-0.5">
-            <Sunrise className="inline h-4.5 w-4.5" /> 10:41
-            <Sunset className="inline h-4.5 w-4.5 ml-3" /> 10:41
+            <Sunrise className="inline h-4.5 w-4.5" />{" "}
+            {formatTime(weatherData.daily.sunrise[0])}
+            <Sunset className="inline h-4.5 w-4.5 ml-3" />{" "}
+            {formatTime(weatherData.daily.sunset[0])}
           </div>
         </CardAction>
       </CardHeader>
@@ -191,6 +201,22 @@ function WeatherCardSkeleton() {
       <CardContent className="space-y-2">
         <div className="h-8 bg-muted rounded w-3/4 animate-pulse" />
         <div className="h-4 bg-muted rounded w-full animate-pulse" />
+      </CardContent>
+    </Card>
+  );
+}
+
+function WeatherCardError({ message }: { message: string }) {
+  return (
+    <Card>
+      <CardHeader className="pb-0">
+        <CardTitle className="text-lg flex items-center gap-2">
+          <Rainbow className="h-5 w-5" />
+          Weather
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-muted-foreground">{message}</p>
       </CardContent>
     </Card>
   );

@@ -9,7 +9,10 @@ import {
 } from "lucide-react";
 
 type ActualWeatherProps = {
-  Icon: LucideIcon;
+  icon: {
+    Condition: LucideIcon;
+    color: string;
+  }
   temperature: {
     current: number;
     maxTemp: number;
@@ -25,7 +28,7 @@ type ActualWeatherProps = {
 };
 
 export function ActualWeather({
-  Icon,
+  icon,
   temperature,
   indicators,
 }: ActualWeatherProps) {
@@ -34,7 +37,7 @@ export function ActualWeather({
       <div className="grid grid-cols-2 grid-rows-2">
         {/* Weather icon */}
         <div className="flex items-center justify-center row-span-2">
-          <Icon className="h-23 w-23 text-yellow-500" />
+          <icon.Condition className={`h-23 w-23 ${icon.color}`} />
         </div>
 
         {/* Temperature */}
