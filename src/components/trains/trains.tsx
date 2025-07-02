@@ -137,7 +137,7 @@ export default function TrainsCard() {
               <span
                 className={`text-sm flex justify-end ${
                   train.status === "Delayed"
-                    ? "text-orange-500"
+                    ? "text-orange-400"
                     : train.status === "Cancelled"
                     ? "text-red-500"
                     : ""

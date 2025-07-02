@@ -20,10 +20,10 @@ export type ActualWeatherProps = {
     rising: boolean;
   };
   indicators: {
-    rainInNextHour: boolean;
+    rainInNextHour: "none" | "low" | "medium" | "high";
     darkInNextHour: boolean;
     fogInNextHour: boolean;
-    windInNextHour: boolean;
+    windInNextHour: "none" | "low" | "medium" | "high";
   };
 };
 
@@ -49,30 +49,38 @@ export function ActualWeather({
         <div className="flex items-center justify-center gap-0.5">
           <Umbrella
             className={`h-8 w-8 ${
-              indicators.rainInNextHour
+              indicators.rainInNextHour === "low"
                 ? ""
-                : "text-muted-foreground brightness-190"
+                : indicators.rainInNextHour === "medium"
+                ? "text-orange-400"
+                : indicators.rainInNextHour === "high"
+                ? "text-red-500"
+                : "text-muted-foreground brightness-190 dark:brightness-50"
             }`}
           />
           <Flashlight
             className={`h-8 w-8 ${
               indicators.darkInNextHour
                 ? ""
-                : "text-muted-foreground brightness-190"
+                : "text-muted-foreground brightness-190 dark:brightness-50"
             }`}
           />
           <CloudFog
             className={`h-8 w-8 ${
               indicators.fogInNextHour
                 ? ""
-                : "text-muted-foreground brightness-190"
+                : "text-muted-foreground brightness-190 dark:brightness-50"
             }`}
           />
           <Wind
             className={`h-8 w-8 ${
-              indicators.windInNextHour
+              indicators.windInNextHour === "low"
                 ? ""
-                : "text-muted-foreground brightness-190"
+                : indicators.windInNextHour === "medium"
+                ? "text-orange-400"
+                : indicators.windInNextHour === "high"
+                ? "text-red-500"
+                : "text-muted-foreground brightness-190 dark:brightness-50"
             }`}
           />
         </div>

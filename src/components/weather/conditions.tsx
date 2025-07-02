@@ -42,16 +42,16 @@ export const getCurrentWeatherConditions = (weather: CurrentWeather) => {
   if (cloudCover > 80) conditions.push("cloudy");
   if (cloudCover > 50) conditions.push("partly-cloudy");
   if (
-    (windSpeed10m > 20 && windSpeed10m <= 30) ||
-    (windGusts10m > 30 && windGusts10m <= 40)
+    (windSpeed10m > 50 && windSpeed10m <= 61) ||
+    (windGusts10m > 70 && windGusts10m <= 85)
   )
-    conditions.push("light-wind");
+    conditions.push("light-wind"); // 7 On the Beaufort scale
   if (
-    (windSpeed10m > 30 && windSpeed10m <= 40) ||
-    (windGusts10m > 40 && windGusts10m <= 50)
+    (windSpeed10m > 62 && windSpeed10m <= 88) ||
+    (windGusts10m > 85 && windGusts10m <= 125)
   )
-    conditions.push("wind");
-  if (windSpeed10m > 40 || windGusts10m > 50) conditions.push("strong-wind");
+    conditions.push("wind"); // 8 - 9 On the Beaufort scale
+  if (windSpeed10m > 89 || windGusts10m > 125) conditions.push("strong-wind"); // 10+ On the Beaufort scale
 
   console.log("Current weather conditions:", conditions, weather);
   return conditions;

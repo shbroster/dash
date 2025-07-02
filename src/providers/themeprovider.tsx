@@ -17,22 +17,25 @@ const ThemeProviderContext = createContext<ThemeProviderState>({
 });
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  const { everyHour: timeNow } = useTickProvider();
+  const { everyMinute: timeNow } = useTickProvider();
   const [theme, setTheme] = useState<Theme>("light");
+  console.log("@@@ThemeProvider", theme);
 
   // Time-based theming
   useEffect(() => {
+    console.log("@@@ThemeProvider useEffect", theme);
     const { sunset, sunrise } = roydonSunTimes(timeNow);
     const isNight = timeNow >= sunset || timeNow <= sunrise;
     const newTheme = isNight ? "dark" : "light";
+    const oldTheme = isNight ? "light" : "dark";
 
-    // Update theme if it changed
-    if (newTheme !== theme) {
-      console.log("Set theme", newTheme);
-      document.documentElement.classList.remove(theme);
+    if (!document.documentElement.classList.contains(newTheme)) {
       document.documentElement.classList.add(newTheme);
-      setTheme(newTheme);
     }
+    if (document.documentElement.classList.contains(oldTheme)) {
+      document.documentElement.classList.remove(oldTheme);
+    } 
+    setTheme(newTheme);
   }, [theme, timeNow]);
 
   return (
