@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sunrise, Sunset, Rainbow } from "lucide-react";
+import { Sunrise, Sunset, Rainbow, PawPrint, Dog } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getRoydonWeather } from "@/services/weatherapi";
 import { useTickProvider } from "@/providers/tickprovider";
@@ -128,14 +128,24 @@ const getActualWeather = (
       rising: tempTrend === "rising",
     },
     indicators: {
-      rainInNextHour: current.precipitation > 0.1, // Precupitation in the last hour; counts rain, showers, snowfall
+      rainInNextHour: currentCondition.includes("light-rain") && current.precipitation > 0.2
+        ? "low"
+        : currentCondition.includes("rain")
+        ? "medium"
+        : currentCondition.includes("heavy-rain")
+        ? "high"
+        : "none",
       darkInNextHour:
         timeNow.getDate() < lightStarts.getDate() ||
         timeNow.getTime() + fiftyMinuteWalk > darkStarts.getTime(),
       fogInNextHour: getAvgWeatherConditions(hourlyToday).includes("fog"),
-      windInNextHour:
-        currentCondition.includes("wind") ||
-        currentCondition.includes("strong-wind"),
+      windInNextHour: currentCondition.includes("light-wind")
+      ? "low"
+      : currentCondition.includes("wind")
+      ? "medium"
+      : currentCondition.includes("strong-wind")
+      ? "high"
+      : "none",
     },
   };
 };
@@ -180,7 +190,7 @@ export default function WeatherCard() {
     <Card className="overflow-hidden">
       <CardHeader className="flex flex-row items-start justify-between -mt-1.5">
         <CardTitle className="text-lg flex items-center gap-2">
-          <Rainbow className="h-5 w-5" />
+          <PawPrint className="h-5 w-5" />
           Weather
         </CardTitle>
         <CardAction>
