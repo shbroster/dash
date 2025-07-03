@@ -15,6 +15,7 @@ import {
   type CurrentWeather,
   type HourlyWeather,
 } from "../../services/weatherapi";
+import { colouredIcon } from "./icons";
 
 type WeatherCondition =
   | "snow"
@@ -150,46 +151,28 @@ function getIconFromConditions({
   return isDay ? Sun : Moon;
 }
 
+export function getColouredIconFromConditions({
+  conditions,
+  isDay,
+}: {
+  conditions: WeatherCondition[];
+  isDay: boolean;
+  coloured?: boolean;
+}) {
+  return colouredIcon(getIconFromConditions({ conditions, isDay }));
+}
+
 export function currentWeatherIcon({ weather }: { weather: CurrentWeather }) {
   const conditions = getCurrentWeatherConditions(weather);
-  const Condition = getIconFromConditions({
+  const Icon = getColouredIconFromConditions({
     conditions,
     isDay: weather.isDay,
   });
-  return {
-    Condition,
-    color: getColor(Condition),
-  };
+  return Icon
+  
 }
 
 export function avgWeatherIcon({ weather }: { weather: HourlyWeather }) {
   const conditions = getAvgWeatherConditions(weather);
   return getIconFromConditions({ conditions, isDay: true });
 }
-
-export const getColor = (icon: LucideIcon) => {
-  switch (icon) {
-    case Sun:
-      return "text-yellow-500";
-    case Cloudy:
-      return "text-gray-500";
-    case CloudRain:
-      return "text-blue-600";
-    case CloudSnow:
-      return "text-blue-300";
-    case CloudDrizzle:
-      return "text-gray-500";
-    case CloudSun:
-      return "text-gray-500";
-    case CloudRainWind:
-      return "text-blue-600";
-    case SunSnow:
-      return "text-blue-300";
-    case CloudMoon:
-      return "text-gray-600";
-    case Moon:
-      return "text-gray-600";
-    default:
-      return "text-gray-500";
-  }
-};

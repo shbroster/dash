@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sunrise, Sunset, Rainbow, PawPrint, Dog } from "lucide-react";
+import { Sunrise, Sunset, Rainbow, PawPrint } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getRoydonWeather } from "@/services/weatherapi";
 import { useTickProvider } from "@/providers/tickprovider";
@@ -120,7 +120,7 @@ const getActualWeather = (
   const currentCondition = getCurrentWeatherConditions(current);
 
   return {
-    icon: currentWeatherIcon({ weather: current }),
+    Icon: currentWeatherIcon({ weather: current }),
     temperature: {
       current: current.temperature2m,
       maxTemp: maxTemp,
