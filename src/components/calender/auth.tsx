@@ -109,7 +109,7 @@ export default function GoogleOfflineAuth({
     codeClientRef.current = window.google.accounts.oauth2.initCodeClient({
       client_id: CLIENT_ID,
       scope: SCOPES,
-      ux_mode: "popup", // or 'redirect'
+      ux_mode: "redirect", // or 'popup'
       callback: (response) => {
         const { code } = response;
         console.log("One-time auth code:", code);
