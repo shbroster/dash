@@ -19,11 +19,9 @@ const ThemeProviderContext = createContext<ThemeProviderState>({
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const { everyMinute: timeNow } = useTickProvider();
   const [theme, setTheme] = useState<Theme>("light");
-  console.log("@@@ThemeProvider", theme);
 
   // Time-based theming
   useEffect(() => {
-    console.log("@@@ThemeProvider useEffect", theme);
     const { sunset, sunrise } = roydonSunTimes(timeNow);
     const isNight = timeNow >= sunset || timeNow <= sunrise;
     const newTheme = isNight ? "dark" : "light";

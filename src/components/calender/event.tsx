@@ -108,14 +108,14 @@ export function CalendarEvent({ event }: CalendarEventProps) {
       <div className="text-center w-12 flex-shrink-0">
         <div
           className={`text-xs ${
-            isActive ? "text-sky-600" : "text-muted-foreground"
+            isActive ? "text-sky-700 dark:text-sky-300" : "text-muted-foreground"
           }`}
         >
           {startDate.toLocaleDateString("en-UK", { weekday: "short" })}
         </div>
 
         <div
-          className={`text-base font-bold ${isActive ? "text-sky-600" : ""}`}
+          className={`text-base font-bold ${isActive ? "text-sky-700 dark:text-sky-300" : ""}`}
         >
           {startDate.getDate()}
         </div>
@@ -124,7 +124,7 @@ export function CalendarEvent({ event }: CalendarEventProps) {
       {/* Event Details */}
       <div
         className={`flex-1 rounded-lg p-1 text-sm min-w-0 ${
-          isActive ? "bg-sky-50" : "bg-muted/90"
+          isActive ? "bg-sky-100 dark:bg-sky-900" : "bg-secondary"
         }`}
       >
         <div className="flex items-center justify-between gap-2">

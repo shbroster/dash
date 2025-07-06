@@ -56,7 +56,7 @@ async function getNewToken({ params }: { params: URLSearchParams }) {
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    console.error(err);
+    console.error("Auth: error getting token", { err });
     throw new Error(
       `Token retrieval failed: ${res.status} ${
         res.statusText
@@ -87,32 +87,31 @@ export default function GoogleOfflineAuth({
 
   // 1. Dynamically inject the GIS <script> (or you can put this in public/index.html)
   useEffect(() => {
-    const existing = document.getElementById("gis-sdk");
-    if (!existing) {
-      const script = document.createElement("script");
-      script.src = "https://accounts.google.com/gsi/client";
-      script.async = true;
-      script.defer = true;
-      script.id = "gis-sdk";
-      script.onload = () => setGisLoaded(true);
-      document.body.appendChild(script);
-    } else {
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.id = "gis-sdk";
+    script.onload = () => {
+      console.log("Auth: gis loaded by callback");
       setGisLoaded(true);
-    }
+    };
+    document.body.appendChild(script);
   }, []);
 
   // 2. Initialize the CodeClient once GIS is available
   useEffect(() => {
     if (!isGisLoaded || codeClientRef.current) return;
+    console.log("Auth: gis loaded", { google: window.google, codeClientRef });
 
     /* global google */
     codeClientRef.current = window.google.accounts.oauth2.initCodeClient({
       client_id: CLIENT_ID,
       scope: SCOPES,
-      ux_mode: "redirect", // or 'popup'
+      ux_mode: "popup", // or 'redirect'
       callback: (response) => {
         const { code } = response;
-        console.log("One-time auth code:", code);
+        console.log("Auth: Got one-time auth code", { code });
         setAuthCode(code);
       },
     });
@@ -122,7 +121,10 @@ export default function GoogleOfflineAuth({
     if (!authCode && !token) return;
 
     const getToken = async () => {
-      console.log("tokens", { authCode, token });
+      console.log("Auth: tokens", {
+        authCode: authCode !== undefined,
+        token: token !== undefined,
+      });
       let newToken: Token;
 
       try {
@@ -138,8 +140,8 @@ export default function GoogleOfflineAuth({
             expires_in,
           };
         } else {
-          console.error("unexpected");
-          throw new Error("unexpected");
+          console.error("Auth: Unexpected state");
+          throw new Error("Unexpected auth error");
         }
 
         setToken(newToken);
@@ -148,10 +150,10 @@ export default function GoogleOfflineAuth({
         localStorage.setItem(KEY, JSON.stringify(newToken));
 
         const expiry = (newToken.expires_in - 60) * 1000;
-        console.log("Expires in", { newToken, expiry });
+        console.log("Auth: new acces token expires in", { expiry });
         setTimeout(getToken, expiry);
       } catch (err) {
-        console.error("Failed to get token", err);
+        console.error("Auth: Failed to get token", { err });
         setToken(undefined);
         setAuthCode(undefined);
       }
@@ -165,7 +167,7 @@ export default function GoogleOfflineAuth({
     if (codeClientRef.current) {
       codeClientRef.current.requestCode();
     } else {
-      console.warn("GIS CodeClient not yet initialized.");
+      console.warn("Auth: GIS CodeClient not yet initialized");
     }
   };
 
@@ -183,7 +185,7 @@ export default function GoogleOfflineAuth({
           backgroundColor: "#fff",
           cursor: "pointer",
           height: "100%",
-          width: "100%"
+          width: "100%",
         }}
         onClick={handleSignIn}
         disabled={!isGisLoaded}
